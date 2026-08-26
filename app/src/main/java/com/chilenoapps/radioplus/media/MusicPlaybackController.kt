@@ -29,6 +29,8 @@ class MusicPlaybackController(context: Context) {
         if (player.isPlaying) player.pause() else player.play()
     }
 
+    fun pause() = player.pause()
+
     fun next() = player.seekToNextMediaItem()
     fun previous() = player.seekToPreviousMediaItem()
     fun seekTo(positionMs: Long) = player.seekTo(positionMs)
