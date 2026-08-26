@@ -3,6 +3,7 @@ package com.chilenoapps.radioplus.settings
 import android.app.AlertDialog
 import android.os.Bundle
 import android.content.Intent
+import android.provider.Settings
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -33,6 +34,12 @@ class SettingsActivity : AppCompatActivity() {
         })
         addSwitch(content, "GERAL E INICIALIZAÇÃO", "Abrir diretamente no rádio físico", store.startOnPhysicalRadio) {
             store.startOnPhysicalRadio = it
+        }
+        addChoice(content, "LAUNCHER DA MULTIMÍDIA", "Escolher RADIO+ como tela inicial padrão") {
+            runCatching { startActivity(Intent(Settings.ACTION_HOME_SETTINGS)) }
+                .onFailure {
+                    AlertDialog.Builder(this).setTitle("Launcher padrão").setMessage("Pressione o botão Home da central e selecione RADIO+ Launcher. Algumas centrais definem o Launcher apenas no menu original do equipamento.").setPositiveButton("ENTENDI", null).show()
+                }
         }
         addChoice(content, "HOME E PAINÉIS LATERAIS", "Auto-recolhimento: ${delayLabel(store.sidePanelDelaySeconds)}") {
             val values = intArrayOf(0, 3, 5, 10, 15)
