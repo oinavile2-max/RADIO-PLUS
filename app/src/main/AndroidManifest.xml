@@ -17,7 +17,8 @@
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:icon="@drawable/ic_radio_plus"
         android:label="RADIO+"
         android:supportsRtl="true"
