@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
@@ -61,6 +62,10 @@ class MusicPanelView @JvmOverloads constructor(
     private val sourceMemory: Button
     private val sourceUsb: Button
     private val sourceSd: Button
+    private val musicContentRoot: LinearLayout
+    private val musicPlayerPanel: FrameLayout
+    private val musicLibraryPanel: LinearLayout
+    private val swapMusicSide: Button
     private var allTracks: List<MusicTrack> = emptyList()
     private var visibleTracks: List<MusicTrack> = emptyList()
     private var playback: MusicPlaybackController? = null
@@ -72,6 +77,7 @@ class MusicPanelView @JvmOverloads constructor(
     private var expandedAlbumArt = preferences.getBoolean("expanded_album_art", false)
     private val favoriteIds = preferences.getStringSet("favorite_track_ids", emptySet()).orEmpty().toMutableSet()
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private var playerOnLeft = preferences.getBoolean("player_on_left", true)
     private val albumArt = AlbumArtRepository(context)
     private val lyricsRepository = LyricsRepository(context)
     private val lyricsPopup = LyricsPopupController(context)
@@ -116,6 +122,10 @@ class MusicPanelView @JvmOverloads constructor(
         sourceMemory = findViewById(R.id.sourceMemory)
         sourceUsb = findViewById(R.id.sourceUsb)
         sourceSd = findViewById(R.id.sourceSd)
+        musicContentRoot = findViewById(R.id.musicContentRoot)
+        musicPlayerPanel = findViewById(R.id.musicPlayerPanel)
+        musicLibraryPanel = findViewById(R.id.musicLibraryPanel)
+        swapMusicSide = findViewById(R.id.swapMusicSide)
         search.doAfterTextChanged { filter(it?.toString().orEmpty()) }
         playPause.setOnClickListener { playback?.togglePlayPause(); refreshPlayer() }
         next.setOnClickListener { playback?.next(); refreshPlayer() }
@@ -124,12 +134,12 @@ class MusicPanelView @JvmOverloads constructor(
             shuffle = !shuffle
             playback?.setShuffle(shuffle)
             shuffleButton.isSelected = shuffle
-            shuffleButton.setBackgroundResource(if (shuffle) R.drawable.bg_button_selected else R.drawable.bg_button)
+            AccentStyler.styleButton(shuffleButton, shuffle)
         }
         repeatButton.setOnClickListener {
             repeat = !repeat
             playback?.setRepeat(repeat)
-            repeatButton.setBackgroundResource(if (repeat) R.drawable.bg_button_selected else R.drawable.bg_button)
+            AccentStyler.styleButton(repeatButton, repeat)
         }
         lyricsButton.setOnClickListener {
             val track = playback?.currentTrack
@@ -158,6 +168,11 @@ class MusicPanelView @JvmOverloads constructor(
         sourceMemory.setOnClickListener { selectSource("MEMÓRIA") }
         sourceUsb.setOnClickListener { selectSource("USB") }
         sourceSd.setOnClickListener { selectSource("CARTÃO SD") }
+        swapMusicSide.setOnClickListener {
+            playerOnLeft = !playerOnLeft
+            preferences.edit().putBoolean("player_on_left", playerOnLeft).apply()
+            renderPlayerSide()
+        }
         musicVolume.max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         musicVolume.progress = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         musicVolume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -167,6 +182,7 @@ class MusicPanelView @JvmOverloads constructor(
             override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
             override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
         })
+        renderPlayerSide()
         progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) elapsed.text = formatTime(progress.toLong())
@@ -212,7 +228,7 @@ class MusicPanelView @JvmOverloads constructor(
     private fun selectSource(source: String) {
         selectedSource = if (selectedSource == source) null else source
         listOf(sourceMemory to "MEMÓRIA", sourceUsb to "USB", sourceSd to "CARTÃO SD").forEach { (button, value) ->
-            button.setBackgroundResource(if (selectedSource == value) R.drawable.bg_button_selected else R.drawable.bg_button)
+            AccentStyler.styleButton(button, selectedSource == value)
         }
         filter(search.text?.toString().orEmpty())
     }
@@ -341,6 +357,30 @@ class MusicPanelView @JvmOverloads constructor(
         albumBackgroundScrim.alpha = if (isNight) 0.90f else 0.72f
         dayNightStatus.alpha = if (isNight) 0.72f else 1f
     }
+
+    private fun renderPlayerSide() {
+        musicContentRoot.removeView(musicPlayerPanel)
+        musicContentRoot.removeView(musicLibraryPanel)
+        val playerParams = musicPlayerPanel.layoutParams as LinearLayout.LayoutParams
+        val libraryParams = musicLibraryPanel.layoutParams as LinearLayout.LayoutParams
+        playerParams.marginStart = if (playerOnLeft) 0 else dp(10)
+        playerParams.marginEnd = if (playerOnLeft) dp(10) else 0
+        libraryParams.marginStart = 0
+        libraryParams.marginEnd = 0
+        musicPlayerPanel.layoutParams = playerParams
+        musicLibraryPanel.layoutParams = libraryParams
+        if (playerOnLeft) {
+            musicContentRoot.addView(musicPlayerPanel)
+            musicContentRoot.addView(musicLibraryPanel)
+        } else {
+            musicContentRoot.addView(musicLibraryPanel)
+            musicContentRoot.addView(musicPlayerPanel)
+        }
+        swapMusicSide.contentDescription = if (playerOnLeft) "Mover player para a direita" else "Mover player para a esquerda"
+        AccentStyler.styleButton(swapMusicSide)
+    }
+
+    private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 
     fun release() {
         progressHandler.removeCallbacks(progressTicker)
