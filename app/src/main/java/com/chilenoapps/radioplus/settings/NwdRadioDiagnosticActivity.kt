@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import com.chilenoapps.radioplus.BuildConfig
 import com.chilenoapps.radioplus.R
 import com.chilenoapps.radioplus.hardware.NwdRadioDiagnostics
+import com.chilenoapps.radioplus.ui.AccentStyler
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -41,6 +42,9 @@ class NwdRadioDiagnosticActivity : AppCompatActivity() {
             return
         }
         setContentView(buildScreen())
+        findViewById<ViewGroup>(android.R.id.content).post {
+            AccentStyler.apply(findViewById<ViewGroup>(android.R.id.content))
+        }
         renderIdentification()
     }
 
