@@ -45,7 +45,10 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="82dp" android:layout_marginTop="12dp" android:orientation="horizontal">
         <Button android:id="@+id/launcherRadio" style="@style/NavButton" android:text="◉  RÁDIO" />
         <Button android:id="@+id/launcherMusic" style="@style/NavButton" android:text="♫  MÚSICA" />
+        <Button android:id="@+id/launcherVideo" style="@style/NavButton" android:text="▶  VÍDEO" />
         <Button android:id="@+id/launcherOnline" style="@style/NavButton" android:text="◎  ONLINE" />
+        <Button android:id="@+id/launcherMaps" style="@style/NavButton" android:text="◆  MAPAS" />
+        <Button android:id="@+id/launcherPhone" style="@style/NavButton" android:text="☎  TELEFONE" />
         <Button android:id="@+id/launcherObd" style="@style/NavButton" android:text="◈  OBD" />
         <Button android:id="@+id/launcherApps" style="@style/NavButton" android:text="▦  APLICATIVOS" />
         <Button android:id="@+id/launcherEssential" style="@style/NavButton" android:text="◐  MODO ESSENCIAL" />
