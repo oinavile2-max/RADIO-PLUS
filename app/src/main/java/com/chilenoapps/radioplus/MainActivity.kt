@@ -2,9 +2,17 @@ package com.chilenoapps.radioplus
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.Context
+import android.content.Intent
+import android.bluetooth.BluetoothAdapter
+import android.location.LocationManager
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.ActivityResultLauncher
@@ -25,6 +33,8 @@ import com.chilenoapps.radioplus.recognition.NowPlayingCoordinator
 import com.chilenoapps.radioplus.ui.NowPlayingPopupController
 import com.chilenoapps.radioplus.vip.VipAccess
 import com.chilenoapps.radioplus.vip.VipAccessManager
+import com.chilenoapps.radioplus.settings.AppSettingsStore
+import com.chilenoapps.radioplus.settings.SettingsActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -44,6 +54,20 @@ class MainActivity : AppCompatActivity() {
     private val obdClient by lazy { Elm327BluetoothClient(this) }
     private val musicRepository by lazy { LocalMusicRepository(this) }
     private val vipAccessManager = VipAccessManager()
+    private lateinit var settings: AppSettingsStore
+    private lateinit var audioManager: AudioManager
+    private val uiHandler = Handler(Looper.getMainLooper())
+    private var currentSection = AppSection.RADIO
+    private val clockTask = object : Runnable {
+        override fun run() {
+            if (::binding.isInitialized) {
+                binding.clock.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+                updateSystemStatus()
+                uiHandler.postDelayed(this, 30_000)
+            }
+        }
+    }
+    private val collapseTask = Runnable { collapseSidePanel() }
     private val requestMusicPermission: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) loadMusicLibrary()
@@ -54,6 +78,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        settings = AppSettingsStore(this)
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         applySystemBarInsets()
         nowPlayingPopup = NowPlayingPopupController(this)
         nowPlayingCoordinator = NowPlayingCoordinator { info -> nowPlayingPopup.show(binding.root, info) }
@@ -73,8 +99,9 @@ class MainActivity : AppCompatActivity() {
             onMetadata = { metadata, station -> nowPlayingCoordinator.fromOnlineMetadata(metadata, station) }
         )
         binding.obdPanel.bind(obdClient, BuildConfig.ADMIN_MODE)
-        binding.clock.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+        clockTask.run()
         configureAdminVip()
+        configureHomeControls()
 
         binding.essentialToggle.setOnClickListener {
             essentialMode = !essentialMode
@@ -85,12 +112,87 @@ class MainActivity : AppCompatActivity() {
 
         binding.nightToggle.setOnClickListener {
             nightMode = !nightMode
+            settings.nightMode = nightMode
             binding.root.alpha = if (nightMode) 0.72f else 1f
             binding.nightToggle.text = if (nightMode) "NOTURNO ATIVO" else "MODO NOTURNO"
         }
 
         configureNavigation()
         selectSection(AppSection.RADIO)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        nightMode = settings.nightMode
+        binding.root.alpha = if (nightMode) 0.72f else 1f
+        binding.nightToggle.text = if (nightMode) "NOTURNO ATIVO" else "☾  NOTURNO"
+        renderPin()
+        scheduleSidePanelCollapse()
+    }
+
+    private fun configureHomeControls() {
+        binding.settingsButton.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
+        binding.equalizerButton.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
+        val frequencies = listOf(89.1, 92.7, 98.5, 101.3, 104.7, 107.9)
+        val names = listOf("NOVA FM", "CLÁSSICOS", "RÁDIO FM", "MIX FM", "TRANSMÉRICA", "JB FM")
+        val buttons = listOf(binding.favorite1, binding.favorite2, binding.favorite3, binding.favorite4, binding.favorite5, binding.favorite6)
+        buttons.forEachIndexed { index, button ->
+            button.text = "${frequencies[index]}    ${names[index]}"
+            button.setOnClickListener {
+                binding.radioPanel.tune(frequencies[index])
+                scheduleSidePanelCollapse()
+            }
+        }
+        binding.pinSidePanel.setOnClickListener {
+            settings.sidePanelPinned = !settings.sidePanelPinned
+            renderPin()
+            scheduleSidePanelCollapse()
+        }
+        binding.showSidePanel.setOnClickListener {
+            binding.sidePanel.visibility = View.VISIBLE
+            binding.showSidePanel.visibility = View.GONE
+            scheduleSidePanelCollapse()
+        }
+        val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+        binding.volumeControl.max = max
+        binding.volumeControl.progress = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        binding.volumeValue.text = binding.volumeControl.progress.toString()
+        binding.volumeControl.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                binding.volumeValue.text = progress.toString()
+                if (fromUser) audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+        })
+    }
+
+    private fun renderPin() {
+        binding.pinSidePanel.text = if (settings.sidePanelPinned) "FIXO" else "PIN"
+        binding.pinSidePanel.setTextColor(ContextCompat.getColor(this, if (settings.sidePanelPinned) R.color.rp_blue else R.color.rp_text_muted))
+    }
+
+    private fun scheduleSidePanelCollapse() {
+        uiHandler.removeCallbacks(collapseTask)
+        val delay = settings.sidePanelDelaySeconds
+        if (!settings.sidePanelPinned && delay > 0 && currentSection == AppSection.RADIO && !essentialMode) {
+            uiHandler.postDelayed(collapseTask, delay * 1000L)
+        }
+    }
+
+    private fun collapseSidePanel() {
+        if (currentSection == AppSection.RADIO && !settings.sidePanelPinned) {
+            binding.sidePanel.visibility = View.GONE
+            binding.showSidePanel.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateSystemStatus() {
+        val bluetoothOn = runCatching { BluetoothAdapter.getDefaultAdapter()?.isEnabled == true }.getOrDefault(false)
+        val gpsOn = runCatching {
+            (getSystemService(Context.LOCATION_SERVICE) as LocationManager).isProviderEnabled(LocationManager.GPS_PROVIDER)
+        }.getOrDefault(false)
+        binding.systemStatus.text = "BT ${if (bluetoothOn) "ATIVO" else "—"}  •  GPS ${if (gpsOn) "ATIVO" else "—"}"
     }
 
     private fun applySystemBarInsets() {
@@ -136,7 +238,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun selectSection(section: AppSection) {
-        binding.sectionTitle.text = section.title
+        currentSection = section
         val onRadio = section == AppSection.RADIO
         val onMusic = section == AppSection.MUSIC
         val onOnline = section == AppSection.ONLINE
@@ -146,6 +248,8 @@ class MainActivity : AppCompatActivity() {
         binding.onlineRadioPanel.visibility = if (onOnline) View.VISIBLE else View.GONE
         binding.obdPanel.visibility = if (onObd) View.VISIBLE else View.GONE
         binding.sidePanel.visibility = if (onRadio && !essentialMode) View.VISIBLE else View.GONE
+        binding.showSidePanel.visibility = View.GONE
+        binding.audioRail.visibility = if (onRadio) View.VISIBLE else View.GONE
         binding.essentialToggle.visibility = if (onRadio) View.VISIBLE else View.GONE
         when (section) {
             AppSection.RADIO -> { musicPlayback.pause(); onlinePlayback.stop() }
@@ -156,6 +260,7 @@ class MainActivity : AppCompatActivity() {
         }
         if (onMusic) ensureMusicLibraryPermission()
         if (onOnline && onlinePlayback.currentStation == null) loadPopularOnlineStations()
+        scheduleSidePanelCollapse()
 
         mapOf(
             binding.navRadio to AppSection.RADIO,
@@ -213,6 +318,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        uiHandler.removeCallbacksAndMessages(null)
         nowPlayingPopup.dismiss()
         binding.musicPanel.release()
         musicPlayback.release()
