@@ -6,13 +6,16 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.media3.common.Player
 import com.chilenoapps.radioplus.R
-import com.chilenoapps.radioplus.databinding.ViewMusicPanelBinding
 import com.chilenoapps.radioplus.media.AlbumArtRepository
 import com.chilenoapps.radioplus.media.MusicPlaybackController
 import com.chilenoapps.radioplus.lyrics.LyricsRepository
@@ -24,7 +27,23 @@ class MusicPanelView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {
 
-    private val binding = ViewMusicPanelBinding.inflate(LayoutInflater.from(context), this)
+    private val search: EditText
+    private val status: TextView
+    private val permissionButton: Button
+    private val trackList: LinearLayout
+    private val albumArtView: ImageView
+    private val albumPlaceholder: TextView
+    private val nowTitle: TextView
+    private val nowArtist: TextView
+    private val progress: SeekBar
+    private val elapsed: TextView
+    private val total: TextView
+    private val previous: Button
+    private val playPause: Button
+    private val next: Button
+    private val shuffleButton: Button
+    private val repeatButton: Button
+    private val lyricsButton: Button
     private var allTracks: List<MusicTrack> = emptyList()
     private var visibleTracks: List<MusicTrack> = emptyList()
     private var playback: MusicPlaybackController? = null
@@ -44,40 +63,58 @@ class MusicPanelView @JvmOverloads constructor(
 
     init {
         orientation = VERTICAL
-        binding.search.doAfterTextChanged { filter(it?.toString().orEmpty()) }
-        binding.playPause.setOnClickListener { playback?.togglePlayPause(); refreshPlayer() }
-        binding.next.setOnClickListener { playback?.next(); refreshPlayer() }
-        binding.previous.setOnClickListener { playback?.previous(); refreshPlayer() }
-        binding.shuffle.setOnClickListener {
+        LayoutInflater.from(context).inflate(R.layout.view_music_panel, this, true)
+        search = findViewById(R.id.search)
+        status = findViewById(R.id.status)
+        permissionButton = findViewById(R.id.permissionButton)
+        trackList = findViewById(R.id.trackList)
+        albumArtView = findViewById(R.id.albumArt)
+        albumPlaceholder = findViewById(R.id.albumPlaceholder)
+        nowTitle = findViewById(R.id.nowTitle)
+        nowArtist = findViewById(R.id.nowArtist)
+        progress = findViewById(R.id.progress)
+        elapsed = findViewById(R.id.elapsed)
+        total = findViewById(R.id.total)
+        previous = findViewById(R.id.previous)
+        playPause = findViewById(R.id.playPause)
+        next = findViewById(R.id.next)
+        shuffleButton = findViewById(R.id.shuffle)
+        repeatButton = findViewById(R.id.repeat)
+        lyricsButton = findViewById(R.id.lyrics)
+        search.doAfterTextChanged { filter(it?.toString().orEmpty()) }
+        playPause.setOnClickListener { playback?.togglePlayPause(); refreshPlayer() }
+        next.setOnClickListener { playback?.next(); refreshPlayer() }
+        previous.setOnClickListener { playback?.previous(); refreshPlayer() }
+        shuffleButton.setOnClickListener {
             shuffle = !shuffle
             playback?.setShuffle(shuffle)
-            binding.shuffle.isSelected = shuffle
-            binding.shuffle.setBackgroundResource(if (shuffle) R.drawable.bg_button_selected else R.drawable.bg_button)
+            shuffleButton.isSelected = shuffle
+            shuffleButton.setBackgroundResource(if (shuffle) R.drawable.bg_button_selected else R.drawable.bg_button)
         }
-        binding.repeat.setOnClickListener {
+        repeatButton.setOnClickListener {
             repeat = !repeat
             playback?.setRepeat(repeat)
-            binding.repeat.setBackgroundResource(if (repeat) R.drawable.bg_button_selected else R.drawable.bg_button)
+            repeatButton.setBackgroundResource(if (repeat) R.drawable.bg_button_selected else R.drawable.bg_button)
         }
-        binding.lyrics.setOnClickListener {
+        lyricsButton.setOnClickListener {
             val track = playback?.currentTrack
             if (track == null) {
-                binding.status.text = "Selecione uma música antes de abrir a letra"
+                status.text = "Selecione uma música antes de abrir a letra"
             } else {
-                binding.status.text = "Buscando letra…"
+                status.text = "Buscando letra…"
                 lyricsRepository.load(track) { document ->
                     if (document == null) {
-                        binding.status.text = "Letra não encontrada"
+                        status.text = "Letra não encontrada"
                     } else {
-                        binding.status.text = if (document.synchronized) "Letra sincronizada disponível" else "Letra com rolagem automática"
+                        status.text = if (document.synchronized) "Letra sincronizada disponível" else "Letra com rolagem automática"
                         lyricsPopup.show(this, document, { playback?.currentPosition ?: 0L }, { playback?.duration ?: track.durationMs })
                     }
                 }
             }
         }
-        binding.progress.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
+        progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) binding.elapsed.text = formatTime(progress.toLong())
+                if (fromUser) elapsed.text = formatTime(progress.toLong())
             }
             override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) = Unit
             override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {
@@ -96,16 +133,16 @@ class MusicPanelView @JvmOverloads constructor(
     }
 
     fun showPermissionRequired(onRequest: () -> Unit) {
-        binding.status.text = "Permita o acesso às músicas da central"
-        binding.permissionButton.visibility = View.VISIBLE
-        binding.permissionButton.setOnClickListener { onRequest() }
+        status.text = "Permita o acesso às músicas da central"
+        permissionButton.visibility = View.VISIBLE
+        permissionButton.setOnClickListener { onRequest() }
     }
 
     fun submitTracks(tracks: List<MusicTrack>) {
         allTracks = tracks
-        binding.permissionButton.visibility = View.GONE
-        binding.status.text = if (tracks.isEmpty()) "Nenhuma música encontrada na memória, USB ou cartão SD" else "${tracks.size} músicas encontradas"
-        filter(binding.search.text?.toString().orEmpty())
+        permissionButton.visibility = View.GONE
+        status.text = if (tracks.isEmpty()) "Nenhuma música encontrada na memória, USB ou cartão SD" else "${tracks.size} músicas encontradas"
+        filter(search.text?.toString().orEmpty())
     }
 
     private fun filter(query: String) {
@@ -116,7 +153,7 @@ class MusicPanelView @JvmOverloads constructor(
     }
 
     private fun renderTrackList() {
-        binding.trackList.removeAllViews()
+        trackList.removeAllViews()
         visibleTracks.forEachIndexed { index, track ->
             val row = TextView(context).apply {
                 text = "${track.title}\n${track.artist}  •  ${track.sourceLabel}  •  ${formatTime(track.durationMs)}"
@@ -132,23 +169,23 @@ class MusicPanelView @JvmOverloads constructor(
             val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
                 bottomMargin = 6
             }
-            binding.trackList.addView(row, params)
+            trackList.addView(row, params)
         }
     }
 
     private fun refreshPlayer() {
         val track = playback?.currentTrack
-        binding.nowTitle.text = track?.title ?: "Selecione uma música"
-        binding.nowArtist.text = track?.artist ?: "Biblioteca local"
-        binding.playPause.text = if (playback?.isPlaying == true) "Ⅱ" else "▶"
+        nowTitle.text = track?.title ?: "Selecione uma música"
+        nowArtist.text = track?.artist ?: "Biblioteca local"
+        playPause.text = if (playback?.isPlaying == true) "Ⅱ" else "▶"
         if (track?.id != artTrackId) {
             artTrackId = track?.id
-            binding.albumArt.setImageDrawable(null)
-            binding.albumPlaceholder.visibility = View.VISIBLE
+            albumArtView.setImageDrawable(null)
+            albumPlaceholder.visibility = View.VISIBLE
             if (track != null) albumArt.load(track) { bitmap ->
                 if (artTrackId == track.id && bitmap != null) {
-                    binding.albumArt.setImageBitmap(bitmap)
-                    binding.albumPlaceholder.visibility = View.GONE
+                    albumArtView.setImageBitmap(bitmap)
+                    albumPlaceholder.visibility = View.GONE
                 }
             }
         }
@@ -158,10 +195,10 @@ class MusicPanelView @JvmOverloads constructor(
     private fun refreshProgress() {
         val position = playback?.currentPosition ?: 0L
         val duration = playback?.duration ?: 0L
-        binding.progress.max = duration.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
-        binding.progress.progress = position.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
-        binding.elapsed.text = formatTime(position)
-        binding.total.text = formatTime(duration)
+        progress.max = duration.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+        progress.progress = position.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+        elapsed.text = formatTime(position)
+        total.text = formatTime(duration)
     }
 
     fun release() {
