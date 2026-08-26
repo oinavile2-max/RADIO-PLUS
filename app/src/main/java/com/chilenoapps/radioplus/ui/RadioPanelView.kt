@@ -113,8 +113,8 @@ class RadioPanelView @JvmOverloads constructor(
             tunerMax.text = "1710"
         }
         playPause.text = if (state.isMuted) "▶" else "Ⅱ"
-        bandFm.setBackgroundResource(if (state.band == RadioBand.FM) R.drawable.bg_button_selected else R.drawable.bg_button)
-        bandAm.setBackgroundResource(if (state.band == RadioBand.AM) R.drawable.bg_button_selected else R.drawable.bg_button)
+        AccentStyler.styleButton(bandFm, state.band == RadioBand.FM)
+        AccentStyler.styleButton(bandAm, state.band == RadioBand.AM)
         presetButtons.zip(state.presets).forEach { (button, value) ->
             button.text = String.format(Locale.US, "%.1f", value)
             button.setOnClickListener { render(controller?.tune(value)) }
