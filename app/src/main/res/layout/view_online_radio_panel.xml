@@ -18,16 +18,22 @@
             <LinearLayout android:id="@+id/stationList" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
         </ScrollView>
     </LinearLayout>
-    <LinearLayout android:layout_width="310dp" android:layout_height="match_parent" android:layout_marginStart="12dp" android:background="@drawable/bg_app" android:gravity="center_horizontal" android:orientation="vertical" android:padding="16dp">
-        <FrameLayout android:layout_width="132dp" android:layout_height="132dp" android:background="@drawable/bg_album_placeholder">
-            <ImageView android:id="@+id/stationLogo" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="Logotipo da estação" android:scaleType="centerCrop" />
-            <TextView android:id="@+id/logoPlaceholder" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="◉" android:textColor="@color/rp_glow" android:textSize="48sp" />
-        </FrameLayout>
-        <TextView android:id="@+id/stationName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:ellipsize="end" android:gravity="center" android:maxLines="2" android:text="RÁDIO ONLINE" android:textColor="@color/rp_text" android:textSize="20sp" android:textStyle="bold" />
-        <TextView android:id="@+id/stationDetails" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:maxLines="2" android:text="Escolha uma estação" android:textColor="@color/rp_text_muted" android:textSize="12sp" />
-        <TextView android:id="@+id/nowPlaying" android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginTop="12dp" android:layout_weight="1" android:ellipsize="end" android:gravity="center" android:maxLines="3" android:text="Música e artista aparecerão aqui quando a transmissão informar" android:textColor="@color/rp_text" android:textSize="15sp" />
-        <TextView android:id="@+id/connectionStatus" android:layout_width="match_parent" android:layout_height="28dp" android:gravity="center" android:text="DESCONECTADO" android:textColor="@color/rp_glow" android:textSize="12sp" android:textStyle="bold" />
-        <Button android:id="@+id/playPause" android:layout_width="72dp" android:layout_height="72dp" android:background="@drawable/bg_knob" android:text="▶" android:textColor="@color/rp_text" android:textSize="25sp" />
-        <Button android:id="@+id/favorite" android:layout_width="180dp" android:layout_height="44dp" android:layout_marginTop="8dp" android:background="@drawable/bg_button" android:text="☆ FAVORITAR" android:textColor="@color/rp_text" android:textSize="12sp" />
-    </LinearLayout>
+
+    <FrameLayout android:id="@+id/playerPanel" android:layout_width="310dp" android:layout_height="match_parent" android:layout_marginStart="12dp" android:background="@drawable/bg_app">
+        <ImageView android:id="@+id/stationBackground" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="@null" android:scaleType="centerCrop" android:visibility="gone" />
+        <View android:id="@+id/backgroundScrim" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#C9070B10" android:visibility="gone" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_horizontal" android:orientation="vertical" android:padding="16dp">
+            <FrameLayout android:id="@+id/logoContainer" android:layout_width="132dp" android:layout_height="132dp" android:background="@drawable/bg_album_placeholder" android:clickable="true" android:contentDescription="Alternar exibição da capa" android:focusable="true">
+                <ImageView android:id="@+id/stationLogo" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="Logotipo da estação" android:scaleType="centerCrop" />
+                <TextView android:id="@+id/logoPlaceholder" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="◉" android:textColor="@color/rp_glow" android:textSize="48sp" />
+                <TextView android:id="@+id/coverModeIndicator" android:layout_width="30dp" android:layout_height="30dp" android:layout_gravity="top|end" android:background="@drawable/bg_button" android:gravity="center" android:text="↗" android:textColor="@color/rp_text" android:textSize="15sp" />
+            </FrameLayout>
+            <TextView android:id="@+id/stationName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:ellipsize="end" android:gravity="center" android:maxLines="2" android:text="RÁDIO ONLINE" android:textColor="@color/rp_text" android:textSize="20sp" android:textStyle="bold" />
+            <TextView android:id="@+id/stationDetails" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:maxLines="2" android:text="Escolha uma estação" android:textColor="@color/rp_text_muted" android:textSize="12sp" />
+            <TextView android:id="@+id/nowPlaying" android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginTop="12dp" android:layout_weight="1" android:ellipsize="end" android:gravity="center" android:maxLines="3" android:text="Música e artista aparecerão aqui quando a transmissão informar" android:textColor="@color/rp_text" android:textSize="15sp" />
+            <TextView android:id="@+id/connectionStatus" android:layout_width="match_parent" android:layout_height="28dp" android:gravity="center" android:text="DESCONECTADO" android:textColor="@color/rp_glow" android:textSize="12sp" android:textStyle="bold" />
+            <Button android:id="@+id/playPause" android:layout_width="72dp" android:layout_height="72dp" android:background="@drawable/bg_knob" android:text="▶" android:textColor="@color/rp_text" android:textSize="25sp" />
+            <Button android:id="@+id/favorite" android:layout_width="180dp" android:layout_height="44dp" android:layout_marginTop="8dp" android:background="@drawable/bg_button" android:text="☆ FAVORITAR" android:textColor="@color/rp_text" android:textSize="12sp" />
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>
