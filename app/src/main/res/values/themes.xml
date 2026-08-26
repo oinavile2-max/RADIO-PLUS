@@ -30,4 +30,14 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="SmallFilterButton" parent="Widget.Material3.Button">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginHorizontal">2dp</item>
+        <item name="android:background">@drawable/bg_button</item>
+        <item name="android:textColor">@color/rp_text</item>
+        <item name="android:textSize">10sp</item>
+    </style>
 </resources>
