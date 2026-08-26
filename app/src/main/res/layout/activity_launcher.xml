@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/launcherRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_app"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="66dp" android:gravity="center_vertical">
+        <ImageView android:layout_width="180dp" android:layout_height="54dp" android:contentDescription="RADIO+" android:scaleType="centerInside" android:src="@drawable/radio_plus_logo" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+            <TextView android:id="@+id/launcherClock" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="00:00" android:textColor="@color/rp_text" android:textSize="30sp" android:textStyle="bold" />
+            <TextView android:id="@+id/launcherDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/rp_text_muted" android:textSize="11sp" />
+        </LinearLayout>
+        <TextView android:id="@+id/launcherSystemStatus" android:layout_width="230dp" android:layout_height="match_parent" android:gravity="center" android:text="BT —  •  GPS —  •  REDE —" android:textColor="@color/rp_text" android:textSize="13sp" />
+        <Button android:id="@+id/launcherSettings" android:layout_width="58dp" android:layout_height="52dp" android:background="@drawable/bg_button" android:contentDescription="Configurações" android:text="⚙" android:textColor="@color/rp_text" android:textSize="23sp" />
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#263746" />
+
+    <LinearLayout android:id="@+id/launcherDashboard" android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginTop="12dp" android:layout_weight="1" android:orientation="horizontal">
+        <LinearLayout android:id="@+id/launcherVehicleCard" android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginEnd="8dp" android:layout_weight="1" android:background="@drawable/bg_panel" android:clickable="true" android:focusable="true" android:gravity="center" android:orientation="vertical" android:padding="18dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="⌁  VEÍCULO" android:textColor="@color/rp_text" android:textSize="19sp" android:textStyle="bold" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="◈" android:textColor="@color/rp_blue" android:textSize="58sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="PAINEL OBD-II" android:textColor="@color/rp_text" android:textSize="22sp" android:textStyle="bold" />
+            <TextView android:id="@+id/launcherObdStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:text="TOQUE PARA CONECTAR" android:textColor="@color/rp_text_muted" android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/launcherRadioCard" android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginHorizontal="4dp" android:layout_weight="1" android:background="@drawable/bg_panel" android:clickable="true" android:focusable="true" android:gravity="center" android:orientation="vertical" android:padding="18dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="▣  RÁDIO FÍSICO" android:textColor="@color/rp_text" android:textSize="19sp" android:textStyle="bold" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="◉" android:textColor="@color/rp_blue" android:textSize="66sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="FM / AM" android:textColor="@color/rp_text" android:textSize="26sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:text="ABRIR RÁDIO PRINCIPAL" android:textColor="@color/rp_text_muted" android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/launcherMediaCard" android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginStart="8dp" android:layout_weight="1" android:background="@drawable/bg_panel" android:clickable="true" android:focusable="true" android:gravity="center" android:orientation="vertical" android:padding="18dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="♫  MÍDIA" android:textColor="@color/rp_text" android:textSize="19sp" android:textStyle="bold" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="♫" android:textColor="@color/rp_blue" android:textSize="62sp" />
+            <TextView android:id="@+id/launcherMediaStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="NENHUM ÁUDIO ATIVO" android:textColor="@color/rp_text" android:textSize="19sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:text="TOQUE PARA ABRIR A BIBLIOTECA" android:textColor="@color/rp_text_muted" android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="82dp" android:layout_marginTop="12dp" android:orientation="horizontal">
+        <Button android:id="@+id/launcherRadio" style="@style/NavButton" android:text="◉  RÁDIO" />
+        <Button android:id="@+id/launcherMusic" style="@style/NavButton" android:text="♫  MÚSICA" />
+        <Button android:id="@+id/launcherOnline" style="@style/NavButton" android:text="◎  ONLINE" />
+        <Button android:id="@+id/launcherObd" style="@style/NavButton" android:text="◈  OBD" />
+        <Button android:id="@+id/launcherApps" style="@style/NavButton" android:text="▦  APLICATIVOS" />
+        <Button android:id="@+id/launcherEssential" style="@style/NavButton" android:text="◐  MODO ESSENCIAL" />
+    </LinearLayout>
+</LinearLayout>
