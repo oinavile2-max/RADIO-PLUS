@@ -12,6 +12,9 @@ class MusicPlaybackController(context: Context) {
 
     val currentTrack: MusicTrack?
         get() = tracks.getOrNull(player.currentMediaItemIndex)
+    val queue: List<MusicTrack> get() = tracks
+    val currentIndex: Int get() = player.currentMediaItemIndex
+    val audioSessionId: Int get() = player.audioSessionId
     val isPlaying: Boolean get() = player.isPlaying
     val currentPosition: Long get() = player.currentPosition.coerceAtLeast(0L)
     val duration: Long get() = player.duration.coerceAtLeast(0L)
@@ -34,6 +37,13 @@ class MusicPlaybackController(context: Context) {
     fun next() = player.seekToNextMediaItem()
     fun previous() = player.seekToPreviousMediaItem()
     fun seekTo(positionMs: Long) = player.seekTo(positionMs)
+
+    fun playQueueIndex(index: Int) {
+        if (index in tracks.indices) {
+            player.seekTo(index, 0L)
+            player.play()
+        }
+    }
 
     fun setShuffle(enabled: Boolean) {
         player.shuffleModeEnabled = enabled
