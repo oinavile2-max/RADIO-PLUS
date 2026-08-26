@@ -21,15 +21,14 @@
             <com.chilenoapps.radioplus.ui.RadioPanelView android:id="@+id/radioPanel" android:layout_width="match_parent" android:layout_height="match_parent" />
             <com.chilenoapps.radioplus.ui.MusicPanelView android:id="@+id/musicPanel" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
             <com.chilenoapps.radioplus.ui.OnlineRadioPanelView android:id="@+id/onlineRadioPanel" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
-            <TextView android:id="@+id/modulePlaceholder" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_panel" android:gravity="center" android:textColor="@color/rp_text" android:textSize="25sp" android:textStyle="bold" android:visibility="gone" />
         </FrameLayout>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="72dp" android:layout_marginTop="10dp" android:orientation="horizontal">
         <Button android:id="@+id/navRadio" style="@style/NavButton" />
         <Button android:id="@+id/navMusic" style="@style/NavButton" />
-        <Button android:id="@+id/navVideo" style="@style/NavButton" />
+        <Button android:id="@+id/navVideo" style="@style/NavButton" android:visibility="gone" />
         <Button android:id="@+id/navOnline" style="@style/NavButton" />
-        <Button android:id="@+id/navMaps" style="@style/NavButton" />
-        <Button android:id="@+id/navPhone" style="@style/NavButton" />
+        <Button android:id="@+id/navMaps" style="@style/NavButton" android:visibility="gone" />
+        <Button android:id="@+id/navPhone" style="@style/NavButton" android:visibility="gone" />
     </LinearLayout>
 </LinearLayout>
