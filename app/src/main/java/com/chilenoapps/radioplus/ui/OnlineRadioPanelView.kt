@@ -27,6 +27,7 @@ class OnlineRadioPanelView @JvmOverloads constructor(
     private var searchMode = StationSearchMode.NAME
     private var searchListener: ((String, StationSearchMode) -> Unit)? = null
     private var playListener: ((OnlineStation) -> Unit)? = null
+    private var metadataListener: ((String, String) -> Unit)? = null
     private var logoRequestUuid: String? = null
 
     init {
@@ -45,10 +46,16 @@ class OnlineRadioPanelView @JvmOverloads constructor(
         selectMode(StationSearchMode.NAME)
     }
 
-    fun bind(controller: OnlineRadioPlaybackController, onSearch: (String, StationSearchMode) -> Unit, onPlay: (OnlineStation) -> Unit) {
+    fun bind(
+        controller: OnlineRadioPlaybackController,
+        onSearch: (String, StationSearchMode) -> Unit,
+        onPlay: (OnlineStation) -> Unit,
+        onMetadata: (String, String) -> Unit
+    ) {
         playback = controller
         searchListener = onSearch
         playListener = onPlay
+        metadataListener = onMetadata
         controller.addListener(this)
     }
 
@@ -121,7 +128,10 @@ class OnlineRadioPanelView @JvmOverloads constructor(
     }
 
     override fun onMetadataChanged(text: String) {
-        if (text.isNotBlank()) binding.nowPlaying.text = text
+        if (text.isNotBlank()) {
+            binding.nowPlaying.text = text
+            metadataListener?.invoke(text, playback?.currentStation?.name.orEmpty())
+        }
     }
 
     override fun onError(message: String) {
