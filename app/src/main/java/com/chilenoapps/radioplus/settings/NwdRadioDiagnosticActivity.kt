@@ -96,7 +96,8 @@ class NwdRadioDiagnosticActivity : AppCompatActivity() {
 
     private fun renderIdentification() {
         val data = diagnostics.identify()
-        val panel = findViewWithTag<LinearLayout>("identification")
+        val panel = findViewById<ViewGroup>(android.R.id.content)
+            .findViewWithTag<LinearLayout>("identification")
         panel.addView(statusRow("Plataforma", data.model.ifBlank { "Não informada" }, data.model.contains("K2001", true)))
         panel.addView(statusRow("Processador", data.hardware.ifBlank { "Não informado" }, data.hardware.isNotBlank()))
         panel.addView(statusRow("Android", data.android, true))
