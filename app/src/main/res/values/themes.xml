@@ -46,6 +46,21 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="FavoriteButton" parent="Widget.Material3.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginVertical">2dp</item>
+        <item name="android:background">@drawable/bg_track_row</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:gravity">center_vertical|start</item>
+        <item name="android:paddingHorizontal">14dp</item>
+        <item name="android:textColor">@color/rp_text</item>
+        <item name="android:textSize">14sp</item>
+        <item name="textAllCaps">false</item>
+    </style>
+
     <style name="SmallFilterButton" parent="Widget.Material3.Button">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
