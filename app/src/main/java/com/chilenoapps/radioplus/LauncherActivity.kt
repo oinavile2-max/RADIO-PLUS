@@ -16,6 +16,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.chilenoapps.radioplus.databinding.ActivityLauncherBinding
 import com.chilenoapps.radioplus.model.AppSection
 import com.chilenoapps.radioplus.settings.SettingsActivity
+import com.chilenoapps.radioplus.ui.AccentStyler
+import com.chilenoapps.radioplus.maps.MapsActivity
+import com.chilenoapps.radioplus.video.VideoActivity
+import com.chilenoapps.radioplus.phone.PhoneActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -38,8 +42,11 @@ class LauncherActivity : AppCompatActivity() {
         binding.launcherRadio.setOnClickListener { openSection(AppSection.RADIO) }
         binding.launcherRadioCard.setOnClickListener { openSection(AppSection.RADIO) }
         binding.launcherMusic.setOnClickListener { openSection(AppSection.MUSIC) }
+        binding.launcherVideo.setOnClickListener { startActivity(Intent(this, VideoActivity::class.java)) }
         binding.launcherMediaCard.setOnClickListener { openSection(AppSection.MUSIC) }
         binding.launcherOnline.setOnClickListener { openSection(AppSection.ONLINE) }
+        binding.launcherMaps.setOnClickListener { startActivity(Intent(this, MapsActivity::class.java)) }
+        binding.launcherPhone.setOnClickListener { startActivity(Intent(this, PhoneActivity::class.java)) }
         binding.launcherObd.setOnClickListener { openSection(AppSection.OBD) }
         binding.launcherVehicleCard.setOnClickListener { openSection(AppSection.OBD) }
         binding.launcherSettings.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
@@ -55,6 +62,7 @@ class LauncherActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateLiveState()
+        AccentStyler.apply(binding.launcherRoot)
     }
 
     private fun openSection(section: AppSection) {
