@@ -14,6 +14,8 @@ import com.chilenoapps.radioplus.hardware.PreviewRadioController
 import com.chilenoapps.radioplus.media.LocalMusicRepository
 import com.chilenoapps.radioplus.media.MusicPlaybackController
 import com.chilenoapps.radioplus.model.AppSection
+import com.chilenoapps.radioplus.online.OnlineRadioPlaybackController
+import com.chilenoapps.radioplus.online.RadioBrowserClient
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -26,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     private var essentialMode = false
     private var nightMode = false
     private lateinit var musicPlayback: MusicPlaybackController
+    private lateinit var onlinePlayback: OnlineRadioPlaybackController
+    private val radioBrowserClient = RadioBrowserClient()
     private val musicRepository by lazy { LocalMusicRepository(this) }
     private val requestMusicPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) loadMusicLibrary()
@@ -40,6 +44,16 @@ class MainActivity : AppCompatActivity() {
         binding.radioPanel.bind(PreviewRadioController())
         musicPlayback = MusicPlaybackController(this)
         binding.musicPanel.bind(musicPlayback)
+        onlinePlayback = OnlineRadioPlaybackController(this)
+        binding.onlineRadioPanel.bind(
+            controller = onlinePlayback,
+            onSearch = { query, mode -> searchOnlineStations(query, mode) },
+            onPlay = { station ->
+                musicPlayback.pause()
+                onlinePlayback.play(station)
+                lifecycleScope.launch(Dispatchers.IO) { radioBrowserClient.registerClick(station.uuid) }
+            }
+        )
         binding.clock.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
         binding.adminBadge.visibility = if (BuildConfig.ADMIN_MODE) View.VISIBLE else View.GONE
 
@@ -78,13 +92,22 @@ class MainActivity : AppCompatActivity() {
         binding.sectionTitle.text = section.title
         val onRadio = section == AppSection.RADIO
         val onMusic = section == AppSection.MUSIC
+        val onOnline = section == AppSection.ONLINE
         binding.radioPanel.visibility = if (onRadio) View.VISIBLE else View.GONE
         binding.musicPanel.visibility = if (onMusic) View.VISIBLE else View.GONE
-        binding.modulePlaceholder.visibility = if (onRadio || onMusic) View.GONE else View.VISIBLE
+        binding.onlineRadioPanel.visibility = if (onOnline) View.VISIBLE else View.GONE
+        binding.modulePlaceholder.visibility = if (onRadio || onMusic || onOnline) View.GONE else View.VISIBLE
         binding.sidePanel.visibility = if (onRadio && !essentialMode) View.VISIBLE else View.GONE
         binding.essentialToggle.visibility = if (onRadio) View.VISIBLE else View.GONE
         binding.modulePlaceholder.text = "${section.symbol}\n${section.title}\nMódulo interno em desenvolvimento"
+        when (section) {
+            AppSection.RADIO -> { musicPlayback.pause(); onlinePlayback.stop() }
+            AppSection.MUSIC -> onlinePlayback.stop()
+            AppSection.ONLINE -> musicPlayback.pause()
+            else -> Unit
+        }
         if (onMusic) ensureMusicLibraryPermission()
+        if (onOnline && onlinePlayback.currentStation == null) loadPopularOnlineStations()
 
         mapOf(
             binding.navRadio to AppSection.RADIO,
@@ -122,9 +145,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadPopularOnlineStations() {
+        binding.onlineRadioPanel.showLoading()
+        lifecycleScope.launch {
+            val stations = withContext(Dispatchers.IO) { radioBrowserClient.popularBrazil() }
+            if (stations.isEmpty()) binding.onlineRadioPanel.showError("Não foi possível carregar as estações")
+            else binding.onlineRadioPanel.submitStations(stations, "POPULARES NO BRASIL")
+        }
+    }
+
+    private fun searchOnlineStations(query: String, mode: com.chilenoapps.radioplus.model.StationSearchMode) {
+        if (query.isBlank()) return loadPopularOnlineStations()
+        binding.onlineRadioPanel.showLoading()
+        lifecycleScope.launch {
+            val stations = withContext(Dispatchers.IO) { radioBrowserClient.search(query, mode) }
+            if (stations.isEmpty()) binding.onlineRadioPanel.showError("Nenhuma estação encontrada")
+            else binding.onlineRadioPanel.submitStations(stations)
+        }
+    }
+
     override fun onDestroy() {
         binding.musicPanel.release()
         musicPlayback.release()
+        binding.onlineRadioPanel.release()
+        onlinePlayback.release()
         super.onDestroy()
     }
 }
