@@ -3,12 +3,12 @@
     <color name="rp_black">#080B0F</color>
     <color name="rp_surface">#090D12</color>
     <color name="rp_surface_alt">#10161D</color>
-    <color name="rp_blue">#B9C8FF</color>
-    <color name="rp_blue_dim">#5666A8</color>
+    <color name="rp_blue">#4EDCFF</color>
+    <color name="rp_blue_dim">#176A86</color>
     <color name="rp_text">#F2F6FA</color>
     <color name="rp_text_muted">#9AABB8</color>
     <color name="rp_night_amber">#FFB547</color>
     <color name="rp_red">#FF5A62</color>
-    <color name="rp_glow">#8EA4FF</color>
-    <color name="rp_button_edge">#29323D</color>
+    <color name="rp_glow">#72E7FF</color>
+    <color name="rp_button_edge">#263746</color>
 </resources>
