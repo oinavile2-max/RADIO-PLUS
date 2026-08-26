@@ -2,6 +2,7 @@ package com.chilenoapps.radioplus.settings
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.content.Intent
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -63,7 +64,13 @@ class SettingsActivity : AppCompatActivity() {
         addSwitch(content, "COMANDOS POR VOZ", "Reconhecimento em português brasileiro", store.voicePortuguese) {
             store.voicePortuguese = it
         }
-        addInfo(content, "RÁDIO FÍSICO E MCU", "Compatibilidade e seleção do adaptador original", "A central ainda não informou uma API/MCU compatível. O RADIO+ não enviará comandos de hardware até a identificação do fabricante e do protocolo.")
+        if (BuildConfig.ADMIN_MODE) {
+            addChoice(content, "RÁDIO FÍSICO E MCU", "Diagnóstico NWD / K2001N") {
+                startActivity(Intent(this, NwdRadioDiagnosticActivity::class.java))
+            }
+        } else {
+            addInfo(content, "RÁDIO FÍSICO E MCU", "Compatibilidade e seleção do adaptador original", "O diagnóstico de hardware está disponível somente na build administrativa de homologação.")
+        }
         addInfo(content, "MÚSICA E BIBLIOTECA", "Memória interna, USB, cartão SD, capas e letras", "A biblioteca usa o MediaStore do Android. USB e SD aparecem quando o Android os indexa e concede acesso.")
         addInfo(content, "RÁDIO ONLINE", "Busca, favoritos, histórico e metadados", "A reprodução e a busca usam streams reais. A identificação depende dos metadados enviados pela estação.")
         addInfo(content, "EQUALIZADOR E ÁUDIO", "DSP, AutoEQ, resampler e perfis por saída • VIP", if (BuildConfig.ADMIN_MODE) "Recursos VIP liberados nesta build Admin. Os efeitos só serão aplicados quando suportados pela sessão e saída de áudio." else "Disponível no plano VIP após validação da compra.")
