@@ -2,15 +2,16 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/rp_blue_dim" />
-            <corners android:radius="14dp" />
+            <gradient android:angle="270" android:startColor="#202936" android:centerColor="#0B1017" android:endColor="#05070A" />
+            <corners android:radius="12dp" />
+            <stroke android:width="1dp" android:color="@color/rp_glow" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/rp_surface_alt" />
-            <corners android:radius="14dp" />
-            <stroke android:width="1dp" android:color="#3B4C5B" />
+            <gradient android:angle="270" android:startColor="#171E27" android:centerColor="#090D12" android:endColor="#030507" />
+            <corners android:radius="12dp" />
+            <stroke android:width="1dp" android:color="@color/rp_button_edge" />
         </shape>
     </item>
 </selector>
