@@ -15,6 +15,7 @@ import com.chilenoapps.radioplus.R
 import com.chilenoapps.radioplus.databinding.ViewMusicPanelBinding
 import com.chilenoapps.radioplus.media.AlbumArtRepository
 import com.chilenoapps.radioplus.media.MusicPlaybackController
+import com.chilenoapps.radioplus.lyrics.LyricsRepository
 import com.chilenoapps.radioplus.model.MusicTrack
 import java.util.Locale
 
@@ -30,6 +31,8 @@ class MusicPanelView @JvmOverloads constructor(
     private var shuffle = false
     private var repeat = false
     private val albumArt = AlbumArtRepository(context)
+    private val lyricsRepository = LyricsRepository(context)
+    private val lyricsPopup = LyricsPopupController(context)
     private val progressHandler = Handler(Looper.getMainLooper())
     private var artTrackId: Long? = null
     private val progressTicker = object : Runnable {
@@ -55,6 +58,22 @@ class MusicPanelView @JvmOverloads constructor(
             repeat = !repeat
             playback?.setRepeat(repeat)
             binding.repeat.setBackgroundResource(if (repeat) R.drawable.bg_button_selected else R.drawable.bg_button)
+        }
+        binding.lyrics.setOnClickListener {
+            val track = playback?.currentTrack
+            if (track == null) {
+                binding.status.text = "Selecione uma música antes de abrir a letra"
+            } else {
+                binding.status.text = "Buscando letra…"
+                lyricsRepository.load(track) { document ->
+                    if (document == null) {
+                        binding.status.text = "Letra não encontrada"
+                    } else {
+                        binding.status.text = if (document.synchronized) "Letra sincronizada disponível" else "Letra com rolagem automática"
+                        lyricsPopup.show(this, document, { playback?.currentPosition ?: 0L }, { playback?.duration ?: track.durationMs })
+                    }
+                }
+            }
         }
         binding.progress.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
@@ -148,6 +167,8 @@ class MusicPanelView @JvmOverloads constructor(
     fun release() {
         progressHandler.removeCallbacks(progressTicker)
         albumArt.close()
+        lyricsRepository.close()
+        lyricsPopup.dismiss()
     }
 
     private fun formatTime(milliseconds: Long): String {
