@@ -8,6 +8,7 @@
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center_vertical">
         <TextView android:id="@+id/adminObd" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="DIAGNÓSTICO OBD-II" android:textColor="@color/rp_text" android:textSize="18sp" android:textStyle="bold" />
+        <Button android:id="@+id/showMonitor" android:layout_width="170dp" android:layout_height="44dp" android:background="@drawable/bg_frosted_button" android:text="▤  MONITOR AO VIVO" android:textColor="@color/rp_text" android:textSize="10sp" />
         <TextView android:id="@+id/status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DESCONECTADO" android:textColor="@color/rp_text_muted" android:textStyle="bold" />
     </LinearLayout>
 
@@ -20,29 +21,29 @@
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:baselineAligned="false" android:orientation="horizontal">
         <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-            <TextView android:text="RPM" style="@style/ObdLabel" />
+            <TextView android:text="◴  RPM" style="@style/ObdLabel" />
             <TextView android:id="@+id/rpm" android:text="—" style="@style/ObdPrimaryValue" />
             <TextView android:text="ROTAÇÃO DO MOTOR" style="@style/ObdLabel" />
         </LinearLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-            <TextView android:text="VELOCIDADE" style="@style/ObdLabel" />
+            <TextView android:text="◉  VELOCIDADE" style="@style/ObdLabel" />
             <TextView android:id="@+id/speed" android:text="—" style="@style/ObdPrimaryValue" />
             <TextView android:text="km/h" style="@style/ObdLabel" />
         </LinearLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-            <TextView android:text="MOTOR" style="@style/ObdLabel" />
+            <TextView android:text="♨  MOTOR" style="@style/ObdLabel" />
             <TextView android:id="@+id/coolant" android:text="—" style="@style/ObdSecondaryValue" />
-            <TextView android:text="AR DE ADMISSÃO" style="@style/ObdLabel" />
+            <TextView android:text="≋  AR DE ADMISSÃO" style="@style/ObdLabel" />
             <TextView android:id="@+id/intake" android:text="—" style="@style/ObdSecondaryValue" />
         </LinearLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-            <TextView android:text="CARGA" style="@style/ObdLabel" />
+            <TextView android:text="▣  CARGA" style="@style/ObdLabel" />
             <TextView android:id="@+id/load" android:text="—" style="@style/ObdSecondaryValue" />
-            <TextView android:text="ACELERADOR" style="@style/ObdLabel" />
+            <TextView android:text="◩  ACELERADOR" style="@style/ObdLabel" />
             <TextView android:id="@+id/throttle" android:text="—" style="@style/ObdSecondaryValue" />
         </LinearLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-            <TextView android:text="TENSÃO" style="@style/ObdLabel" />
+            <TextView android:text="▤  TENSÃO" style="@style/ObdLabel" />
             <TextView android:id="@+id/voltage" android:text="—" style="@style/ObdSecondaryValue" />
         </LinearLayout>
     </LinearLayout>
