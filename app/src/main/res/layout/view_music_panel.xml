@@ -1,38 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_panel" android:orientation="horizontal" android:padding="12dp">
-    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.25" android:orientation="vertical">
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="BIBLIOTECA" android:textColor="@color/rp_text" android:textSize="20sp" android:textStyle="bold" />
-        <EditText android:id="@+id/search" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="8dp" android:background="@drawable/bg_button" android:hint="Buscar música, artista ou álbum" android:paddingHorizontal="16dp" android:singleLine="true" android:textColor="@color/rp_text" android:textColorHint="@color/rp_text_muted" android:textSize="14sp" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="7dp" android:gravity="center_vertical">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_panel" android:orientation="horizontal" android:padding="10dp">
+    <FrameLayout android:id="@+id/musicPlayerPanel" android:layout_width="360dp" android:layout_height="match_parent" android:background="@drawable/bg_app">
+        <ImageView android:id="@+id/albumBackground" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="@null" android:scaleType="centerCrop" android:visibility="gone" />
+        <View android:id="@+id/albumBackgroundScrim" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#C9070B10" android:visibility="gone" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_horizontal" android:orientation="vertical" android:padding="14dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="126dp" android:gravity="center_vertical">
+                <FrameLayout android:id="@+id/albumContainer" android:layout_width="126dp" android:layout_height="126dp" android:background="@drawable/bg_album_placeholder" android:clickable="true" android:contentDescription="Alternar exibição da capa" android:focusable="true">
+                    <ImageView android:id="@+id/albumArt" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="Capa do álbum" android:scaleType="centerCrop" />
+                    <TextView android:id="@+id/albumPlaceholder" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="♫" android:textColor="@color/rp_glow" android:textSize="46sp" />
+                    <TextView android:id="@+id/albumModeIndicator" android:layout_width="30dp" android:layout_height="30dp" android:layout_gravity="top|end" android:background="@drawable/bg_button" android:gravity="center" android:text="↗" android:textColor="@color/rp_text" />
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginStart="12dp" android:layout_weight="1" android:gravity="center_vertical" android:orientation="vertical">
+                    <TextView android:id="@+id/nowTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="2" android:text="Selecione uma música" android:textColor="@color/rp_text" android:textSize="19sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/nowArtist" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:ellipsize="end" android:maxLines="1" android:text="Biblioteca local" android:textColor="@color/rp_text_muted" android:textSize="14sp" />
+                    <Button android:id="@+id/favoriteTrack" android:layout_width="54dp" android:layout_height="42dp" android:layout_marginTop="7dp" android:background="@drawable/bg_button" android:text="☆" android:textColor="@color/rp_blue" android:textSize="22sp" />
+                </LinearLayout>
+            </LinearLayout>
+            <SeekBar android:id="@+id/progress" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:progressTint="@color/rp_blue" android:thumbTint="@color/rp_blue" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="22dp"><TextView android:id="@+id/elapsed" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="0:00" android:textColor="@color/rp_text_muted" android:textSize="11sp" /><TextView android:id="@+id/total" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:text="0:00" android:textColor="@color/rp_text_muted" android:textSize="11sp" /></LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="72dp" android:gravity="center">
+                <Button android:id="@+id/shuffle" android:layout_width="54dp" android:layout_height="48dp" android:background="@drawable/bg_button" android:text="⤨" android:textColor="@color/rp_text" android:textSize="18sp" />
+                <Button android:id="@+id/previous" android:layout_width="58dp" android:layout_height="54dp" android:background="@drawable/bg_button" android:text="|◀" android:textColor="@color/rp_text" android:textSize="18sp" />
+                <Button android:id="@+id/playPause" android:layout_width="68dp" android:layout_height="68dp" android:layout_marginHorizontal="8dp" android:background="@drawable/bg_knob" android:text="▶" android:textColor="@color/rp_text" android:textSize="24sp" />
+                <Button android:id="@+id/next" android:layout_width="58dp" android:layout_height="54dp" android:background="@drawable/bg_button" android:text="▶|" android:textColor="@color/rp_text" android:textSize="18sp" />
+                <Button android:id="@+id/repeat" android:layout_width="54dp" android:layout_height="48dp" android:background="@drawable/bg_button" android:text="↻" android:textColor="@color/rp_text" android:textSize="18sp" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center">
+                <Button android:id="@+id/lyrics" style="@style/SmallFilterButton" android:text="LETRA" />
+                <Button android:id="@+id/queue" style="@style/SmallFilterButton" android:text="FILA" />
+                <Button android:id="@+id/equalizer" style="@style/SmallFilterButton" android:text="EQUALIZADOR" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="42dp" android:gravity="center_vertical">
+                <TextView android:layout_width="34dp" android:layout_height="wrap_content" android:text="🔊" android:textColor="@color/rp_text" />
+                <SeekBar android:id="@+id/musicVolume" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" />
+                <TextView android:id="@+id/dayNightStatus" android:layout_width="74dp" android:layout_height="wrap_content" android:gravity="end" android:text="AUTO • DIA" android:textColor="@color/rp_blue" android:textSize="9sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginStart="10dp" android:layout_weight="1" android:orientation="vertical">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="42dp" android:gravity="center_vertical">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="BIBLIOTECA" android:textColor="@color/rp_text" android:textSize="20sp" android:textStyle="bold" />
+            <Button android:id="@+id/sourceMemory" style="@style/SmallFilterButton" android:text="MEMÓRIA" /><Button android:id="@+id/sourceUsb" style="@style/SmallFilterButton" android:text="USB" /><Button android:id="@+id/sourceSd" style="@style/SmallFilterButton" android:text="CARTÃO SD" />
+        </LinearLayout>
+        <EditText android:id="@+id/search" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="6dp" android:background="@drawable/bg_button" android:hint="Buscar música, artista ou álbum" android:paddingHorizontal="16dp" android:singleLine="true" android:textColor="@color/rp_text" android:textColorHint="@color/rp_text_muted" android:textSize="14sp" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="5dp" android:gravity="center_vertical">
             <TextView android:id="@+id/status" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Carregando biblioteca…" android:textColor="@color/rp_text_muted" android:textSize="12sp" />
             <Button android:id="@+id/permissionButton" android:layout_width="130dp" android:layout_height="38dp" android:background="@drawable/bg_button_selected" android:text="PERMITIR" android:textColor="@color/rp_text" android:textSize="12sp" android:visibility="gone" />
         </LinearLayout>
-        <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginTop="5dp" android:layout_weight="1" android:fillViewport="true">
-            <LinearLayout android:id="@+id/trackList" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
-        </ScrollView>
-    </LinearLayout>
-    <LinearLayout android:layout_width="300dp" android:layout_height="match_parent" android:layout_marginStart="12dp" android:background="@drawable/bg_app" android:gravity="center_horizontal" android:orientation="vertical" android:padding="16dp">
-        <FrameLayout android:layout_width="128dp" android:layout_height="128dp" android:background="@drawable/bg_album_placeholder">
-            <ImageView android:id="@+id/albumArt" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="Capa do álbum" android:scaleType="centerCrop" />
-            <TextView android:id="@+id/albumPlaceholder" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="♫" android:textColor="@color/rp_glow" android:textSize="46sp" />
-        </FrameLayout>
-        <TextView android:id="@+id/nowTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:ellipsize="end" android:gravity="center" android:maxLines="2" android:text="Selecione uma música" android:textColor="@color/rp_text" android:textSize="19sp" android:textStyle="bold" />
-        <TextView android:id="@+id/nowArtist" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:ellipsize="end" android:gravity="center" android:maxLines="1" android:text="Biblioteca local" android:textColor="@color/rp_text_muted" android:textSize="14sp" />
-        <SeekBar android:id="@+id/progress" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:progressTint="@color/rp_glow" android:thumbTint="@color/rp_glow" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="24dp">
-            <TextView android:id="@+id/elapsed" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="0:00" android:textColor="@color/rp_text_muted" android:textSize="11sp" />
-            <TextView android:id="@+id/total" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:text="0:00" android:textColor="@color/rp_text_muted" android:textSize="11sp" />
-        </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="74dp" android:gravity="center">
-            <Button android:id="@+id/previous" android:layout_width="68dp" android:layout_height="58dp" android:background="@drawable/bg_button" android:text="◀◀" android:textColor="@color/rp_text" android:textSize="19sp" />
-            <Button android:id="@+id/playPause" android:layout_width="70dp" android:layout_height="70dp" android:layout_marginHorizontal="12dp" android:background="@drawable/bg_knob" android:text="▶" android:textColor="@color/rp_text" android:textSize="24sp" />
-            <Button android:id="@+id/next" android:layout_width="68dp" android:layout_height="58dp" android:background="@drawable/bg_button" android:text="▶▶" android:textColor="@color/rp_text" android:textSize="19sp" />
-        </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="54dp" android:gravity="center">
-            <Button android:id="@+id/shuffle" android:layout_width="82dp" android:layout_height="46dp" android:background="@drawable/bg_button" android:text="ALEATÓRIO" android:textColor="@color/rp_text" android:textSize="9sp" />
-            <Button android:id="@+id/repeat" android:layout_width="82dp" android:layout_height="46dp" android:layout_marginStart="6dp" android:background="@drawable/bg_button" android:text="REPETIR" android:textColor="@color/rp_text" android:textSize="9sp" />
-            <Button android:id="@+id/lyrics" android:layout_width="82dp" android:layout_height="46dp" android:layout_marginStart="6dp" android:background="@drawable/bg_button" android:text="LETRAS" android:textColor="@color/rp_text" android:textSize="9sp" />
-        </LinearLayout>
-        <TextView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="bottom|center_horizontal" android:text="MEMÓRIA  •  USB  •  CARTÃO SD" android:textColor="@color/rp_text_muted" android:textSize="11sp" />
+        <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true"><LinearLayout android:id="@+id/trackList" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" /></ScrollView>
     </LinearLayout>
 </LinearLayout>
