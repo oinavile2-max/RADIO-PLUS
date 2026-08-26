@@ -46,6 +46,10 @@ class OnlineRadioPanelView @JvmOverloads constructor(
     private val connectionStatus: TextView
     private val playPause: Button
     private val favorite: Button
+    private val onlineContentRoot: LinearLayout
+    private val onlineListPanel: LinearLayout
+    private val playerPanel: FrameLayout
+    private val swapOnlineSide: Button
     private val store = OnlineRadioStore(context)
     private val imageLoader = RemoteImageLoader()
     private var playback: OnlineRadioPlaybackController? = null
@@ -57,6 +61,8 @@ class OnlineRadioPanelView @JvmOverloads constructor(
     private var currentLogo: Bitmap? = null
     private var coverFillEnabled = context.getSharedPreferences("online_radio_ui", Context.MODE_PRIVATE)
         .getBoolean("cover_fill_enabled", false)
+    private var playerOnLeft = context.getSharedPreferences("online_radio_ui", Context.MODE_PRIVATE)
+        .getBoolean("player_on_left", true)
 
     init {
         orientation = VERTICAL
@@ -83,6 +89,10 @@ class OnlineRadioPanelView @JvmOverloads constructor(
         connectionStatus = findViewById(R.id.connectionStatus)
         playPause = findViewById(R.id.playPause)
         favorite = findViewById(R.id.favorite)
+        onlineContentRoot = findViewById(R.id.onlineContentRoot)
+        onlineListPanel = findViewById(R.id.onlineListPanel)
+        playerPanel = findViewById(R.id.playerPanel)
+        swapOnlineSide = findViewById(R.id.swapOnlineSide)
         searchButton.setOnClickListener { searchListener?.invoke(search.text.toString(), searchMode) }
         filterName.setOnClickListener { selectMode(StationSearchMode.NAME) }
         filterGenre.setOnClickListener { selectMode(StationSearchMode.GENRE) }
@@ -102,8 +112,15 @@ class OnlineRadioPanelView @JvmOverloads constructor(
                 renderCoverMode()
             }
         }
+        swapOnlineSide.setOnClickListener {
+            playerOnLeft = !playerOnLeft
+            context.getSharedPreferences("online_radio_ui", Context.MODE_PRIVATE).edit()
+                .putBoolean("player_on_left", playerOnLeft).apply()
+            renderPlayerSide()
+        }
         selectMode(StationSearchMode.NAME)
         renderCoverMode()
+        renderPlayerSide()
     }
 
     fun bind(
@@ -202,6 +219,28 @@ class OnlineRadioPanelView @JvmOverloads constructor(
 
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 
+    private fun renderPlayerSide() {
+        onlineContentRoot.removeView(playerPanel)
+        onlineContentRoot.removeView(onlineListPanel)
+        val playerParams = playerPanel.layoutParams as LinearLayout.LayoutParams
+        val listParams = onlineListPanel.layoutParams as LinearLayout.LayoutParams
+        playerParams.marginStart = if (playerOnLeft) 0 else dp(12)
+        playerParams.marginEnd = if (playerOnLeft) dp(12) else 0
+        listParams.marginStart = 0
+        listParams.marginEnd = 0
+        playerPanel.layoutParams = playerParams
+        onlineListPanel.layoutParams = listParams
+        if (playerOnLeft) {
+            onlineContentRoot.addView(playerPanel)
+            onlineContentRoot.addView(onlineListPanel)
+        } else {
+            onlineContentRoot.addView(onlineListPanel)
+            onlineContentRoot.addView(playerPanel)
+        }
+        swapOnlineSide.contentDescription = if (playerOnLeft) "Mover player para a direita" else "Mover player para a esquerda"
+        AccentStyler.styleButton(swapOnlineSide)
+    }
+
     private fun selectMode(mode: StationSearchMode) {
         searchMode = mode
         mapOf(
@@ -209,12 +248,12 @@ class OnlineRadioPanelView @JvmOverloads constructor(
             filterGenre to StationSearchMode.GENRE,
             filterCountry to StationSearchMode.COUNTRY,
             filterState to StationSearchMode.STATE
-        ).forEach { (button, value) -> button.setBackgroundResource(if (value == mode) R.drawable.bg_button_selected else R.drawable.bg_button) }
+        ).forEach { (button, value) -> AccentStyler.styleButton(button, value == mode) }
     }
 
     private fun updateFavorite(enabled: Boolean) {
         favorite.text = if (enabled) "★ FAVORITA" else "☆ FAVORITAR"
-        favorite.setBackgroundResource(if (enabled) R.drawable.bg_button_selected else R.drawable.bg_button)
+        AccentStyler.styleButton(favorite, enabled)
     }
 
     override fun onPlaybackChanged(isPlaying: Boolean) {
