@@ -55,7 +55,7 @@ class RadioPanelView @JvmOverloads constructor(
         binding.bandFm.setBackgroundResource(if (state.band == RadioBand.FM) R.drawable.bg_button_selected else R.drawable.bg_button)
         binding.bandAm.setBackgroundResource(if (state.band == RadioBand.AM) R.drawable.bg_button_selected else R.drawable.bg_button)
 
-        val presetButtons = listOf(
+        val presetButtons: List<android.widget.Button> = listOf(
             binding.preset1, binding.preset2, binding.preset3,
             binding.preset4, binding.preset5, binding.preset6
         )
