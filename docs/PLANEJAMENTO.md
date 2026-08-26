@@ -201,4 +201,4 @@ O Navigation SDK do Google possui condições específicas para dispositivos emb
 
 ## 9. Regra de início
 
-Este documento é planejamento. Nenhuma implementação ou compilação deverá começar sem aprovação explícita do proprietário.
+O desenvolvimento inicial foi autorizado em 25/08/2026. A compilação e a geração de APK/AAB continuam bloqueadas até autorização explícita do proprietário.
