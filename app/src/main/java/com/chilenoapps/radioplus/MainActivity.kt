@@ -85,10 +85,7 @@ class MainActivity : AppCompatActivity() {
         mapOf(
             binding.navRadio to AppSection.RADIO,
             binding.navMusic to AppSection.MUSIC,
-            binding.navVideo to AppSection.VIDEO,
-            binding.navOnline to AppSection.ONLINE,
-            binding.navMaps to AppSection.MAPS,
-            binding.navPhone to AppSection.PHONE
+            binding.navOnline to AppSection.ONLINE
         ).forEach { (view, section) ->
             view.text = "${section.symbol}  ${section.title}"
             view.setOnClickListener { selectSection(section) }
@@ -103,10 +100,8 @@ class MainActivity : AppCompatActivity() {
         binding.radioPanel.visibility = if (onRadio) View.VISIBLE else View.GONE
         binding.musicPanel.visibility = if (onMusic) View.VISIBLE else View.GONE
         binding.onlineRadioPanel.visibility = if (onOnline) View.VISIBLE else View.GONE
-        binding.modulePlaceholder.visibility = if (onRadio || onMusic || onOnline) View.GONE else View.VISIBLE
         binding.sidePanel.visibility = if (onRadio && !essentialMode) View.VISIBLE else View.GONE
         binding.essentialToggle.visibility = if (onRadio) View.VISIBLE else View.GONE
-        binding.modulePlaceholder.text = "${section.symbol}\n${section.title}\nMódulo interno em desenvolvimento"
         when (section) {
             AppSection.RADIO -> { musicPlayback.pause(); onlinePlayback.stop() }
             AppSection.MUSIC -> onlinePlayback.stop()
@@ -119,10 +114,7 @@ class MainActivity : AppCompatActivity() {
         mapOf(
             binding.navRadio to AppSection.RADIO,
             binding.navMusic to AppSection.MUSIC,
-            binding.navVideo to AppSection.VIDEO,
-            binding.navOnline to AppSection.ONLINE,
-            binding.navMaps to AppSection.MAPS,
-            binding.navPhone to AppSection.PHONE
+            binding.navOnline to AppSection.ONLINE
         ).forEach { (view, value) ->
             view.setBackgroundResource(if (value == section) R.drawable.bg_button_selected else R.drawable.bg_button)
         }
