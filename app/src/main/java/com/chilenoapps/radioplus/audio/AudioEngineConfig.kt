@@ -7,7 +7,14 @@ data class AudioEngineConfig(
     val volumeSteps: VolumeSteps = VolumeSteps.STEPS_50,
     val gapless: Boolean = true,
     val smoothing: Boolean = true,
+    val crossfadeMs: Int = 0,
+    val replayGain: ReplayGainMode = ReplayGainMode.OFF,
+    val replayGainPreampDb: Float = 0f,
+    val directVolumeControl: Boolean = false,
     val equalizerEnabled: Boolean = false,
+    val monoMix: Boolean = false,
+    val balance: Float = 0f,
+    val musicFxEnabled: Boolean = false,
     val stereoExpansion: Float = 0f,
     val bass: Float = 0f,
     val treble: Float = 0f,
@@ -21,6 +28,7 @@ enum class ProcessingPrecision { FLOAT_32, FLOAT_64 }
 enum class ResamplerMode { AUTO, SYSTEM, SINC_FAST, SINC_BEST }
 enum class DitherMode { OFF, AUTO, TRIANGULAR, NOISE_SHAPED }
 enum class VolumeSteps(val count: Int) { STEPS_30(30), STEPS_50(50), STEPS_100(100) }
+enum class ReplayGainMode { OFF, TRACK, ALBUM }
 
 data class OutputProfile(
     val outputId: String,
