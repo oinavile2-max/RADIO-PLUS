@@ -16,6 +16,8 @@ import com.chilenoapps.radioplus.media.MusicPlaybackController
 import com.chilenoapps.radioplus.model.AppSection
 import com.chilenoapps.radioplus.online.OnlineRadioPlaybackController
 import com.chilenoapps.radioplus.online.RadioBrowserClient
+import com.chilenoapps.radioplus.recognition.NowPlayingCoordinator
+import com.chilenoapps.radioplus.ui.NowPlayingPopupController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -30,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var musicPlayback: MusicPlaybackController
     private lateinit var onlinePlayback: OnlineRadioPlaybackController
     private val radioBrowserClient = RadioBrowserClient()
+    private lateinit var nowPlayingPopup: NowPlayingPopupController
+    private lateinit var nowPlayingCoordinator: NowPlayingCoordinator
     private val musicRepository by lazy { LocalMusicRepository(this) }
     private val requestMusicPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) loadMusicLibrary()
@@ -40,6 +44,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        nowPlayingPopup = NowPlayingPopupController(this)
+        nowPlayingCoordinator = NowPlayingCoordinator { info -> nowPlayingPopup.show(binding.root, info) }
 
         binding.radioPanel.bind(PreviewRadioController())
         musicPlayback = MusicPlaybackController(this)
@@ -52,7 +58,8 @@ class MainActivity : AppCompatActivity() {
                 musicPlayback.pause()
                 onlinePlayback.play(station)
                 lifecycleScope.launch(Dispatchers.IO) { radioBrowserClient.registerClick(station.uuid) }
-            }
+            },
+            onMetadata = { metadata, station -> nowPlayingCoordinator.fromOnlineMetadata(metadata, station) }
         )
         binding.clock.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
         binding.adminBadge.visibility = if (BuildConfig.ADMIN_MODE) View.VISIBLE else View.GONE
@@ -165,6 +172,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        nowPlayingPopup.dismiss()
         binding.musicPanel.release()
         musicPlayback.release()
         binding.onlineRadioPanel.release()
