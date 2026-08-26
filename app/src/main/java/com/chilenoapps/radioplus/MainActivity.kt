@@ -118,7 +118,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         configureNavigation()
-        selectSection(AppSection.RADIO)
+        val requestedSection = intent.getStringExtra(EXTRA_SECTION)
+            ?.let { runCatching { AppSection.valueOf(it) }.getOrNull() }
+            ?.takeIf { it == AppSection.RADIO || it == AppSection.MUSIC || it == AppSection.ONLINE || it == AppSection.OBD }
+            ?: AppSection.RADIO
+        selectSection(requestedSection)
     }
 
     override fun onResume() {
@@ -326,5 +330,9 @@ class MainActivity : AppCompatActivity() {
         onlinePlayback.release()
         binding.obdPanel.release()
         super.onDestroy()
+    }
+
+    companion object {
+        const val EXTRA_SECTION = "radio_plus_section"
     }
 }
