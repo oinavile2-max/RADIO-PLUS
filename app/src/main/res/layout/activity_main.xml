@@ -1,35 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/bg_app" android:orientation="vertical" android:padding="10dp">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="54dp" android:gravity="center_vertical">
-        <ImageView android:layout_width="145dp" android:layout_height="46dp" android:contentDescription="RADIO+" android:scaleType="centerCrop" android:src="@drawable/radio_plus_logo" />
-        <TextView android:id="@+id/adminBadge" android:layout_width="wrap_content" android:layout_height="32dp" android:layout_marginStart="14dp" android:background="@drawable/bg_button" android:gravity="center" android:paddingHorizontal="12dp" android:text="ADMIN" android:textColor="@color/rp_night_amber" android:textStyle="bold" />
-        <TextView android:id="@+id/sectionTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="RÁDIO" android:textColor="@color/rp_text_muted" android:textSize="16sp" />
-        <Button android:id="@+id/nightToggle" android:layout_width="150dp" android:layout_height="44dp" android:background="@drawable/bg_button" android:text="MODO NOTURNO" android:textColor="@color/rp_text" android:textSize="12sp" />
-        <Button android:id="@+id/essentialToggle" android:layout_width="160dp" android:layout_height="44dp" android:layout_marginStart="8dp" android:background="@drawable/bg_button" android:text="MODO ESSENCIAL" android:textColor="@color/rp_text" android:textSize="12sp" />
-        <TextView android:id="@+id/clock" android:layout_width="88dp" android:layout_height="wrap_content" android:gravity="end" android:text="21:35" android:textColor="@color/rp_text" android:textSize="24sp" android:textStyle="bold" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_app" android:orientation="vertical" android:padding="10dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="58dp" android:gravity="center_vertical">
+        <ImageView android:layout_width="170dp" android:layout_height="52dp" android:contentDescription="RADIO+" android:scaleType="centerInside" android:src="@drawable/radio_plus_logo" />
+        <TextView android:id="@+id/adminBadge" android:layout_width="wrap_content" android:layout_height="32dp" android:layout_marginStart="10dp" android:background="@drawable/bg_button" android:gravity="center" android:paddingHorizontal="12dp" android:textColor="@color/rp_night_amber" android:textStyle="bold" />
+        <TextView android:id="@+id/clock" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="21:35" android:textColor="@color/rp_text" android:textSize="28sp" android:textStyle="bold" />
+        <TextView android:id="@+id/systemStatus" android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="center" android:minWidth="210dp" android:text="BT —  •  GPS —" android:textColor="@color/rp_text" android:textSize="14sp" />
+        <Button android:id="@+id/settingsButton" android:layout_width="54dp" android:layout_height="48dp" android:background="@drawable/bg_button" android:contentDescription="Configurações" android:text="⚙" android:textColor="@color/rp_text" android:textSize="23sp" />
     </LinearLayout>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal">
-        <LinearLayout android:id="@+id/sidePanel" android:layout_width="190dp" android:layout_height="match_parent" android:layout_marginEnd="10dp" android:background="@drawable/bg_panel" android:orientation="vertical" android:padding="14dp">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="★  FAVORITOS" android:textColor="@color/rp_text" android:textSize="18sp" android:textStyle="bold" />
-            <TextView android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginTop="16dp" android:layout_weight="1" android:lineSpacingExtra="16dp" android:text="89.1  NOVA FM\n92.7  CLÁSSICOS\n98.5  RÁDIO FM\n101.3  MIX FM\n104.7  FAVORITA\n107.9  JB FM" android:textColor="@color/rp_text_muted" android:textSize="15sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="VOL  18" android:textColor="@color/rp_blue" android:textSize="18sp" android:textStyle="bold" />
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#263746" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginTop="10dp" android:layout_weight="1" android:orientation="horizontal">
+        <LinearLayout android:id="@+id/sidePanel" android:layout_width="230dp" android:layout_height="match_parent" android:layout_marginEnd="10dp" android:background="@drawable/bg_panel" android:orientation="vertical" android:padding="10dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="42dp" android:gravity="center_vertical">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="★  FAVORITOS" android:textColor="@color/rp_text" android:textSize="17sp" android:textStyle="bold" />
+                <Button android:id="@+id/pinSidePanel" android:layout_width="42dp" android:layout_height="38dp" android:background="@drawable/bg_button" android:text="PIN" android:textColor="@color/rp_text_muted" android:textSize="9sp" />
+            </LinearLayout>
+            <Button android:id="@+id/favorite1" style="@style/FavoriteButton" />
+            <Button android:id="@+id/favorite2" style="@style/FavoriteButton" />
+            <Button android:id="@+id/favorite3" style="@style/FavoriteButton" />
+            <Button android:id="@+id/favorite4" style="@style/FavoriteButton" />
+            <Button android:id="@+id/favorite5" style="@style/FavoriteButton" />
+            <Button android:id="@+id/favorite6" style="@style/FavoriteButton" />
+            <Button android:id="@+id/essentialToggle" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="6dp" android:background="@drawable/bg_button" android:text="MODO ESSENCIAL" android:textColor="@color/rp_text" android:textSize="11sp" />
         </LinearLayout>
+        <Button android:id="@+id/showSidePanel" android:layout_width="38dp" android:layout_height="match_parent" android:layout_marginEnd="8dp" android:background="@drawable/bg_button" android:text="›" android:textColor="@color/rp_blue" android:textSize="24sp" android:visibility="gone" />
         <FrameLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1">
             <com.chilenoapps.radioplus.ui.RadioPanelView android:id="@+id/radioPanel" android:layout_width="match_parent" android:layout_height="match_parent" />
             <com.chilenoapps.radioplus.ui.MusicPanelView android:id="@+id/musicPanel" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
             <com.chilenoapps.radioplus.ui.OnlineRadioPanelView android:id="@+id/onlineRadioPanel" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
             <com.chilenoapps.radioplus.obd.ObdPanelView android:id="@+id/obdPanel" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
         </FrameLayout>
+        <LinearLayout android:id="@+id/audioRail" android:layout_width="150dp" android:layout_height="match_parent" android:layout_marginStart="10dp" android:background="@drawable/bg_panel" android:gravity="center_horizontal" android:orientation="vertical" android:padding="10dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="VOLUME" android:textColor="@color/rp_text" android:textSize="12sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="🔊" android:textColor="@color/rp_blue" android:textSize="22sp" />
+            <SeekBar android:id="@+id/volumeControl" android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginVertical="8dp" android:layout_weight="1" android:max="100" android:progress="50" android:rotation="270" />
+            <TextView android:id="@+id/volumeValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:textColor="@color/rp_blue" android:textSize="22sp" />
+            <Button android:id="@+id/equalizerButton" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="8dp" android:background="@drawable/bg_button" android:text="EQUALIZADOR" android:textColor="@color/rp_text" android:textSize="10sp" />
+            <Button android:id="@+id/nightToggle" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="8dp" android:background="@drawable/bg_button" android:text="☾  NOTURNO" android:textColor="@color/rp_text" android:textSize="10sp" />
+        </LinearLayout>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="72dp" android:layout_marginTop="10dp" android:orientation="horizontal">
-        <Button android:id="@+id/navRadio" style="@style/NavButton" />
-        <Button android:id="@+id/navMusic" style="@style/NavButton" />
-        <Button android:id="@+id/navVideo" style="@style/NavButton" android:visibility="gone" />
-        <Button android:id="@+id/navOnline" style="@style/NavButton" />
-        <Button android:id="@+id/navObd" style="@style/NavButton" />
-        <Button android:id="@+id/navMaps" style="@style/NavButton" android:visibility="gone" />
-        <Button android:id="@+id/navPhone" style="@style/NavButton" android:visibility="gone" />
+        <Button android:id="@+id/navRadio" style="@style/NavButton" /><Button android:id="@+id/navMusic" style="@style/NavButton" />
+        <Button android:id="@+id/navVideo" style="@style/NavButton" android:visibility="gone" /><Button android:id="@+id/navOnline" style="@style/NavButton" />
+        <Button android:id="@+id/navObd" style="@style/NavButton" /><Button android:id="@+id/navMaps" style="@style/NavButton" android:visibility="gone" /><Button android:id="@+id/navPhone" style="@style/NavButton" android:visibility="gone" />
     </LinearLayout>
 </LinearLayout>
