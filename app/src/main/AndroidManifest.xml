@@ -3,6 +3,7 @@
 
     <queries>
         <package android:name="com.nwd.radio" />
+        <package android:name="com.google.android.apps.maps" />
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
@@ -24,6 +25,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <uses-feature android:name="android.hardware.type.automotive" android:required="false" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
@@ -50,6 +52,20 @@
             android:name=".settings.SettingsActivity"
             android:exported="false"
             android:screenOrientation="sensorLandscape" />
+
+        <activity android:name=".maps.MapsActivity" android:exported="false" android:screenOrientation="sensorLandscape" />
+        <activity android:name=".video.VideoActivity" android:exported="false" android:screenOrientation="sensorLandscape" />
+        <activity android:name=".phone.PhoneActivity" android:exported="false" android:screenOrientation="sensorLandscape" />
+
+        <service
+            android:name=".maps.RouteNotificationListenerService"
+            android:exported="true"
+            android:label="RADIO+ • Rotas do Google Maps"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
 
         <activity
             android:name=".settings.NwdRadioDiagnosticActivity"
