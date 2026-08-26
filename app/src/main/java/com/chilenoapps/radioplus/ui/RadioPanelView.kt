@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.SeekBar
 import com.chilenoapps.radioplus.R
 import com.chilenoapps.radioplus.hardware.PhysicalRadioController
 import com.chilenoapps.radioplus.model.RadioBand
@@ -29,6 +30,9 @@ class RadioPanelView @JvmOverloads constructor(
     private val presets: LinearLayout
     private val radioDetails: LinearLayout
     private val hardwareStatus: TextView
+    private val tuner: SeekBar
+    private val tunerMin: TextView
+    private val tunerMax: TextView
     private val presetButtons: List<Button>
     private var controller: PhysicalRadioController? = null
 
@@ -47,6 +51,9 @@ class RadioPanelView @JvmOverloads constructor(
         presets = findViewById(R.id.presets)
         radioDetails = findViewById(R.id.radioDetails)
         hardwareStatus = findViewById(R.id.hardwareStatus)
+        tuner = findViewById(R.id.tuner)
+        tunerMin = findViewById(R.id.tunerMin)
+        tunerMax = findViewById(R.id.tunerMax)
         presetButtons = listOf(
             findViewById(R.id.preset1), findViewById(R.id.preset2), findViewById(R.id.preset3),
             findViewById(R.id.preset4), findViewById(R.id.preset5), findViewById(R.id.preset6)
@@ -56,6 +63,15 @@ class RadioPanelView @JvmOverloads constructor(
         seekDown.setOnClickListener { render(controller?.seekDown()) }
         seekUp.setOnClickListener { render(controller?.seekUp()) }
         playPause.setOnClickListener { render(controller?.toggleMute()) }
+        tuner.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) = Unit
+            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                val currentBand = controller?.currentState()?.band ?: return
+                val value = if (currentBand == RadioBand.FM) 87.5 + tuner.progress / 10.0 else 520.0 + tuner.progress * 10.0
+                render(controller?.tune(value))
+            }
+        })
     }
 
     fun bind(controller: PhysicalRadioController) {
@@ -74,6 +90,10 @@ class RadioPanelView @JvmOverloads constructor(
         frequency.textSize = if (enabled) 82f else 68f
     }
 
+    fun tune(frequency: Double) {
+        render(controller?.tune(frequency))
+    }
+
     private fun render(state: RadioState?) {
         state ?: return
         val decimals = if (state.band == RadioBand.FM) 1 else 0
@@ -81,6 +101,17 @@ class RadioPanelView @JvmOverloads constructor(
         unit.text = if (state.band == RadioBand.FM) "MHz" else "kHz"
         stationName.text = state.stationName
         stereo.text = if (state.isStereo) "STEREO" else "MONO"
+        if (state.band == RadioBand.FM) {
+            tuner.max = 205
+            tuner.progress = ((state.frequency - 87.5) * 10).toInt().coerceIn(0, 205)
+            tunerMin.text = "87.5"
+            tunerMax.text = "108.0"
+        } else {
+            tuner.max = 119
+            tuner.progress = ((state.frequency - 520.0) / 10.0).toInt().coerceIn(0, 119)
+            tunerMin.text = "520"
+            tunerMax.text = "1710"
+        }
         playPause.text = if (state.isMuted) "▶" else "Ⅱ"
         bandFm.setBackgroundResource(if (state.band == RadioBand.FM) R.drawable.bg_button_selected else R.drawable.bg_button)
         bandAm.setBackgroundResource(if (state.band == RadioBand.AM) R.drawable.bg_button_selected else R.drawable.bg_button)
