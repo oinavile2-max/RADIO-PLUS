@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -16,8 +17,11 @@ import com.chilenoapps.radioplus.media.MusicPlaybackController
 import com.chilenoapps.radioplus.model.AppSection
 import com.chilenoapps.radioplus.online.OnlineRadioPlaybackController
 import com.chilenoapps.radioplus.online.RadioBrowserClient
+import com.chilenoapps.radioplus.obd.Elm327BluetoothClient
 import com.chilenoapps.radioplus.recognition.NowPlayingCoordinator
 import com.chilenoapps.radioplus.ui.NowPlayingPopupController
+import com.chilenoapps.radioplus.vip.VipAccess
+import com.chilenoapps.radioplus.vip.VipAccessManager
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -34,7 +38,9 @@ class MainActivity : AppCompatActivity() {
     private val radioBrowserClient = RadioBrowserClient()
     private lateinit var nowPlayingPopup: NowPlayingPopupController
     private lateinit var nowPlayingCoordinator: NowPlayingCoordinator
+    private val obdClient by lazy { Elm327BluetoothClient(this) }
     private val musicRepository by lazy { LocalMusicRepository(this) }
+    private val vipAccessManager = VipAccessManager()
     private val requestMusicPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) loadMusicLibrary()
         else binding.musicPanel.showPermissionRequired { askForMusicPermission() }
@@ -61,8 +67,9 @@ class MainActivity : AppCompatActivity() {
             },
             onMetadata = { metadata, station -> nowPlayingCoordinator.fromOnlineMetadata(metadata, station) }
         )
+        binding.obdPanel.bind(obdClient, BuildConfig.ADMIN_MODE)
         binding.clock.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-        binding.adminBadge.visibility = if (BuildConfig.ADMIN_MODE) View.VISIBLE else View.GONE
+        configureAdminVip()
 
         binding.essentialToggle.setOnClickListener {
             essentialMode = !essentialMode
@@ -81,11 +88,25 @@ class MainActivity : AppCompatActivity() {
         selectSection(AppSection.RADIO)
     }
 
+    private fun configureAdminVip() {
+        val access = vipAccessManager.access
+        binding.adminBadge.visibility = if (access is VipAccess.AdminTest) View.VISIBLE else View.GONE
+        binding.adminBadge.text = "ADMIN • VIP ATIVO"
+        binding.adminBadge.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Modo administrativo")
+                .setMessage("VIP liberado somente para testes nesta instalação Admin. Esta autorização não representa uma compra e não existe na versão pública.")
+                .setPositiveButton("ENTENDI", null)
+                .show()
+        }
+    }
+
     private fun configureNavigation() {
         mapOf(
             binding.navRadio to AppSection.RADIO,
             binding.navMusic to AppSection.MUSIC,
-            binding.navOnline to AppSection.ONLINE
+            binding.navOnline to AppSection.ONLINE,
+            binding.navObd to AppSection.OBD
         ).forEach { (view, section) ->
             view.text = "${section.symbol}  ${section.title}"
             view.setOnClickListener { selectSection(section) }
@@ -97,15 +118,18 @@ class MainActivity : AppCompatActivity() {
         val onRadio = section == AppSection.RADIO
         val onMusic = section == AppSection.MUSIC
         val onOnline = section == AppSection.ONLINE
+        val onObd = section == AppSection.OBD
         binding.radioPanel.visibility = if (onRadio) View.VISIBLE else View.GONE
         binding.musicPanel.visibility = if (onMusic) View.VISIBLE else View.GONE
         binding.onlineRadioPanel.visibility = if (onOnline) View.VISIBLE else View.GONE
+        binding.obdPanel.visibility = if (onObd) View.VISIBLE else View.GONE
         binding.sidePanel.visibility = if (onRadio && !essentialMode) View.VISIBLE else View.GONE
         binding.essentialToggle.visibility = if (onRadio) View.VISIBLE else View.GONE
         when (section) {
             AppSection.RADIO -> { musicPlayback.pause(); onlinePlayback.stop() }
             AppSection.MUSIC -> onlinePlayback.stop()
             AppSection.ONLINE -> musicPlayback.pause()
+            AppSection.OBD -> { musicPlayback.pause(); onlinePlayback.stop() }
             else -> Unit
         }
         if (onMusic) ensureMusicLibraryPermission()
@@ -114,7 +138,8 @@ class MainActivity : AppCompatActivity() {
         mapOf(
             binding.navRadio to AppSection.RADIO,
             binding.navMusic to AppSection.MUSIC,
-            binding.navOnline to AppSection.ONLINE
+            binding.navOnline to AppSection.ONLINE,
+            binding.navObd to AppSection.OBD
         ).forEach { (view, value) ->
             view.setBackgroundResource(if (value == section) R.drawable.bg_button_selected else R.drawable.bg_button)
         }
@@ -169,6 +194,7 @@ class MainActivity : AppCompatActivity() {
         musicPlayback.release()
         binding.onlineRadioPanel.release()
         onlinePlayback.release()
+        binding.obdPanel.release()
         super.onDestroy()
     }
 }

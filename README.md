@@ -1,46 +1,19 @@
 # RADIO+
 
-Aplicativo multimídia premium para centrais automotivas Android genéricas, com o **rádio físico FM/AM como função principal**.
+Aplicativo multimídia automotivo para centrais Android, com rádio físico como função principal, música local, rádio online, letras sincronizadas e diagnóstico OBD-II.
 
-> **Status atual:** desenvolvimento inicial autorizado. A compilação continua aguardando autorização explícita.
+## Abrir no Android Studio
 
-## Visão do produto
+1. Clonar ou baixar este repositório.
+2. Abrir a pasta raiz `RADIO-PLUS` no Android Studio.
+3. Aguardar a sincronização do Gradle.
+4. Selecionar a variante `debug` em **Build Variants**.
+5. Usar **Build > Build APK(s)**.
 
-O RADIO+ reunirá em uma única interface própria:
+A variante `debug` é a versão administrativa: usa o pacote `com.chilenoapps.radioplus.admin`, mostra o selo **ADMIN • VIP ATIVO** e libera o estado VIP exclusivamente para homologação. A versão `release` não contém essa autorização.
 
-- rádio físico FM/AM;
-- músicas e vídeos locais;
-- rádio online;
-- Google Maps integrado;
-- Bluetooth, contatos e chamadas;
-- comandos de voz em português;
-- câmera de ré;
-- temas dinâmicos;
-- Modo Essencial e Direção Noturna;
-- recursos VIP adquiridos dentro do aplicativo.
+O projeto suporta Android 7 (API 24) ou superior e foi desenhado para telas horizontais de centrais automotivas.
 
-Os módulos Música, Vídeo, Online, Mapas e Telefone serão funções internas do RADIO+, não apenas atalhos para aplicativos de terceiros.
+## Estado de hardware
 
-## Plataforma inicial
-
-- Centrais Android genéricas/chinesas;
-- Android 7 ou superior;
-- Interface horizontal responsiva;
-- Publicação planejada na Google Play Store;
-- Design moderno, escuro e premium.
-
-## Segurança
-
-Rádio, câmera de ré, chamadas, navegação, Modo Essencial e Direção Noturna terão prioridade sobre promoções e elementos visuais. Vídeos e telas comerciais deverão respeitar o estado de condução sempre que essa informação estiver disponível.
-
-## Compatibilidade de hardware
-
-O controle direto do rádio físico, Bluetooth e câmera de ré depende da MCU, dos serviços e das APIs de cada fabricante. A compatibilidade será definida após identificar o modelo da central, MCU e aplicativos originais.
-
-## Monetização
-
-Haverá uma versão gratuita funcional e opções RADIO+ VIP. Funções essenciais de segurança não serão bloqueadas por pagamento. As compras serão planejadas para o sistema de faturamento da Google Play.
-
-## Situação do repositório
-
-A primeira base Android e a interface inicial do rádio estão em desenvolvimento. Nenhuma build foi compilada; APK/AAB continuam bloqueados até autorização explícita do proprietário.
+O módulo OBD usa conexão Bluetooth ELM327 real. O rádio FM/AM físico ainda utiliza controlador de prévia até que a MCU e a API do rádio original da central sejam identificadas.
