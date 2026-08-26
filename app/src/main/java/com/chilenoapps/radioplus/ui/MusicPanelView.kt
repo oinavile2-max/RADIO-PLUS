@@ -1,6 +1,11 @@
 package com.chilenoapps.radioplus.ui
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.media.AudioManager
+import android.media.audiofx.AudioEffect
+import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
@@ -32,6 +37,10 @@ class MusicPanelView @JvmOverloads constructor(
     private val permissionButton: Button
     private val trackList: LinearLayout
     private val albumArtView: ImageView
+    private val albumBackground: ImageView
+    private val albumBackgroundScrim: View
+    private val albumContainer: View
+    private val albumModeIndicator: TextView
     private val albumPlaceholder: TextView
     private val nowTitle: TextView
     private val nowArtist: TextView
@@ -44,11 +53,25 @@ class MusicPanelView @JvmOverloads constructor(
     private val shuffleButton: Button
     private val repeatButton: Button
     private val lyricsButton: Button
+    private val queueButton: Button
+    private val equalizerButton: Button
+    private val favoriteButton: Button
+    private val musicVolume: SeekBar
+    private val dayNightStatus: TextView
+    private val sourceMemory: Button
+    private val sourceUsb: Button
+    private val sourceSd: Button
     private var allTracks: List<MusicTrack> = emptyList()
     private var visibleTracks: List<MusicTrack> = emptyList()
     private var playback: MusicPlaybackController? = null
     private var shuffle = false
     private var repeat = false
+    private var selectedSource: String? = null
+    private var currentArt: Bitmap? = null
+    private val preferences = context.getSharedPreferences("music_player", Context.MODE_PRIVATE)
+    private var expandedAlbumArt = preferences.getBoolean("expanded_album_art", false)
+    private val favoriteIds = preferences.getStringSet("favorite_track_ids", emptySet()).orEmpty().toMutableSet()
+    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val albumArt = AlbumArtRepository(context)
     private val lyricsRepository = LyricsRepository(context)
     private val lyricsPopup = LyricsPopupController(context)
@@ -69,6 +92,10 @@ class MusicPanelView @JvmOverloads constructor(
         permissionButton = findViewById(R.id.permissionButton)
         trackList = findViewById(R.id.trackList)
         albumArtView = findViewById(R.id.albumArt)
+        albumBackground = findViewById(R.id.albumBackground)
+        albumBackgroundScrim = findViewById(R.id.albumBackgroundScrim)
+        albumContainer = findViewById(R.id.albumContainer)
+        albumModeIndicator = findViewById(R.id.albumModeIndicator)
         albumPlaceholder = findViewById(R.id.albumPlaceholder)
         nowTitle = findViewById(R.id.nowTitle)
         nowArtist = findViewById(R.id.nowArtist)
@@ -81,6 +108,14 @@ class MusicPanelView @JvmOverloads constructor(
         shuffleButton = findViewById(R.id.shuffle)
         repeatButton = findViewById(R.id.repeat)
         lyricsButton = findViewById(R.id.lyrics)
+        queueButton = findViewById(R.id.queue)
+        equalizerButton = findViewById(R.id.equalizer)
+        favoriteButton = findViewById(R.id.favoriteTrack)
+        musicVolume = findViewById(R.id.musicVolume)
+        dayNightStatus = findViewById(R.id.dayNightStatus)
+        sourceMemory = findViewById(R.id.sourceMemory)
+        sourceUsb = findViewById(R.id.sourceUsb)
+        sourceSd = findViewById(R.id.sourceSd)
         search.doAfterTextChanged { filter(it?.toString().orEmpty()) }
         playPause.setOnClickListener { playback?.togglePlayPause(); refreshPlayer() }
         next.setOnClickListener { playback?.next(); refreshPlayer() }
@@ -112,6 +147,26 @@ class MusicPanelView @JvmOverloads constructor(
                 }
             }
         }
+        albumContainer.setOnClickListener {
+            expandedAlbumArt = !expandedAlbumArt
+            preferences.edit().putBoolean("expanded_album_art", expandedAlbumArt).apply()
+            applyAlbumMode()
+        }
+        favoriteButton.setOnClickListener { toggleFavorite() }
+        queueButton.setOnClickListener { showQueue() }
+        equalizerButton.setOnClickListener { openSystemEqualizer() }
+        sourceMemory.setOnClickListener { selectSource("MEMÓRIA") }
+        sourceUsb.setOnClickListener { selectSource("USB") }
+        sourceSd.setOnClickListener { selectSource("CARTÃO SD") }
+        musicVolume.max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        musicVolume.progress = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        musicVolume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, value: Int, fromUser: Boolean) {
+                if (fromUser) audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value, 0)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+        })
         progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) elapsed.text = formatTime(progress.toLong())
@@ -146,10 +201,20 @@ class MusicPanelView @JvmOverloads constructor(
     }
 
     private fun filter(query: String) {
-        visibleTracks = if (query.isBlank()) allTracks else allTracks.filter {
-            it.title.contains(query, true) || it.artist.contains(query, true) || it.album.contains(query, true)
+        visibleTracks = allTracks.filter {
+            (selectedSource == null || it.sourceLabel == selectedSource) &&
+                (query.isBlank() || it.title.contains(query, true) || it.artist.contains(query, true) || it.album.contains(query, true))
         }
+        status.text = if (visibleTracks.isEmpty()) "Nenhuma música encontrada neste filtro" else "${visibleTracks.size} músicas exibidas"
         renderTrackList()
+    }
+
+    private fun selectSource(source: String) {
+        selectedSource = if (selectedSource == source) null else source
+        listOf(sourceMemory to "MEMÓRIA", sourceUsb to "USB", sourceSd to "CARTÃO SD").forEach { (button, value) ->
+            button.setBackgroundResource(if (selectedSource == value) R.drawable.bg_button_selected else R.drawable.bg_button)
+        }
+        filter(search.text?.toString().orEmpty())
     }
 
     private fun renderTrackList() {
@@ -177,15 +242,22 @@ class MusicPanelView @JvmOverloads constructor(
         val track = playback?.currentTrack
         nowTitle.text = track?.title ?: "Selecione uma música"
         nowArtist.text = track?.artist ?: "Biblioteca local"
+        favoriteButton.text = if (track != null && favoriteIds.contains(track.id.toString())) "★" else "☆"
+        favoriteButton.isEnabled = track != null
         playPause.text = if (playback?.isPlaying == true) "Ⅱ" else "▶"
         if (track?.id != artTrackId) {
             artTrackId = track?.id
+            currentArt = null
             albumArtView.setImageDrawable(null)
+            albumBackground.setImageDrawable(null)
             albumPlaceholder.visibility = View.VISIBLE
+            applyAlbumMode()
             if (track != null) albumArt.load(track) { bitmap ->
                 if (artTrackId == track.id && bitmap != null) {
+                    currentArt = bitmap
                     albumArtView.setImageBitmap(bitmap)
                     albumPlaceholder.visibility = View.GONE
+                    applyAlbumMode()
                 }
             }
         }
@@ -199,6 +271,75 @@ class MusicPanelView @JvmOverloads constructor(
         progress.progress = position.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
         elapsed.text = formatTime(position)
         total.text = formatTime(duration)
+        musicVolume.progress = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        updateDayNightAppearance()
+    }
+
+    private fun toggleFavorite() {
+        val track = playback?.currentTrack ?: return
+        val key = track.id.toString()
+        if (!favoriteIds.add(key)) favoriteIds.remove(key)
+        preferences.edit().putStringSet("favorite_track_ids", favoriteIds.toSet()).apply()
+        favoriteButton.text = if (favoriteIds.contains(key)) "★" else "☆"
+        status.text = if (favoriteIds.contains(key)) "Adicionada aos favoritos" else "Removida dos favoritos"
+    }
+
+    private fun showQueue() {
+        val controller = playback ?: return
+        if (controller.queue.isEmpty()) {
+            status.text = "A fila está vazia"
+            return
+        }
+        val labels = controller.queue.mapIndexed { index, track ->
+            "${if (index == controller.currentIndex) "▶ " else ""}${track.title} — ${track.artist}"
+        }.toTypedArray()
+        AlertDialog.Builder(context)
+            .setTitle("Fila de reprodução")
+            .setItems(labels) { dialog, index ->
+                controller.playQueueIndex(index)
+                dialog.dismiss()
+                refreshPlayer()
+            }
+            .setNegativeButton("FECHAR", null)
+            .show()
+    }
+
+    private fun openSystemEqualizer() {
+        val session = playback?.audioSessionId ?: 0
+        if (session <= 0) {
+            status.text = "Inicie uma música para abrir o equalizador"
+            return
+        }
+        val intent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL).apply {
+            putExtra(AudioEffect.EXTRA_AUDIO_SESSION, session)
+            putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
+            putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
+        }
+        runCatching { context.startActivity(intent) }
+            .onFailure { status.text = "Esta central não fornece um painel de equalizador compatível" }
+    }
+
+    private fun applyAlbumMode() {
+        val hasArt = currentArt != null
+        albumModeIndicator.text = if (expandedAlbumArt) "↙" else "↗"
+        albumBackground.visibility = if (expandedAlbumArt && hasArt) View.VISIBLE else View.GONE
+        albumBackgroundScrim.visibility = if (expandedAlbumArt && hasArt) View.VISIBLE else View.GONE
+        if (expandedAlbumArt && hasArt) {
+            val art = currentArt ?: return
+            val small = Bitmap.createScaledBitmap(art, 72, 72, true)
+            albumBackground.setImageBitmap(small)
+        } else {
+            albumBackground.setImageDrawable(null)
+        }
+    }
+
+    private fun updateDayNightAppearance() {
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        val isNight = hour < 6 || hour >= 18
+        dayNightStatus.text = if (isNight) "AUTO • NOITE" else "AUTO • DIA"
+        albumBackground.alpha = if (isNight) 0.24f else 0.42f
+        albumBackgroundScrim.alpha = if (isNight) 0.90f else 0.72f
+        dayNightStatus.alpha = if (isNight) 0.72f else 1f
     }
 
     fun release() {
