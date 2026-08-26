@@ -1,12 +1,14 @@
 package com.chilenoapps.radioplus.ui
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -33,6 +35,10 @@ class OnlineRadioPanelView @JvmOverloads constructor(
     private val resultStatus: TextView
     private val stationList: LinearLayout
     private val stationLogo: ImageView
+    private val stationBackground: ImageView
+    private val backgroundScrim: View
+    private val logoContainer: FrameLayout
+    private val coverModeIndicator: TextView
     private val logoPlaceholder: TextView
     private val stationName: TextView
     private val stationDetails: TextView
@@ -48,6 +54,9 @@ class OnlineRadioPanelView @JvmOverloads constructor(
     private var playListener: ((OnlineStation) -> Unit)? = null
     private var metadataListener: ((String, String) -> Unit)? = null
     private var logoRequestUuid: String? = null
+    private var currentLogo: Bitmap? = null
+    private var coverFillEnabled = context.getSharedPreferences("online_radio_ui", Context.MODE_PRIVATE)
+        .getBoolean("cover_fill_enabled", false)
 
     init {
         orientation = VERTICAL
@@ -63,6 +72,10 @@ class OnlineRadioPanelView @JvmOverloads constructor(
         resultStatus = findViewById(R.id.resultStatus)
         stationList = findViewById(R.id.stationList)
         stationLogo = findViewById(R.id.stationLogo)
+        stationBackground = findViewById(R.id.stationBackground)
+        backgroundScrim = findViewById(R.id.backgroundScrim)
+        logoContainer = findViewById(R.id.logoContainer)
+        coverModeIndicator = findViewById(R.id.coverModeIndicator)
         logoPlaceholder = findViewById(R.id.logoPlaceholder)
         stationName = findViewById(R.id.stationName)
         stationDetails = findViewById(R.id.stationDetails)
@@ -81,7 +94,16 @@ class OnlineRadioPanelView @JvmOverloads constructor(
         }
         showFavorites.setOnClickListener { submitStations(store.favorites(), "FAVORITOS") }
         showHistory.setOnClickListener { submitStations(store.history(), "HISTÓRICO") }
+        logoContainer.setOnClickListener {
+            if (currentLogo != null) {
+                coverFillEnabled = !coverFillEnabled
+                context.getSharedPreferences("online_radio_ui", Context.MODE_PRIVATE)
+                    .edit().putBoolean("cover_fill_enabled", coverFillEnabled).apply()
+                renderCoverMode()
+            }
+        }
         selectMode(StationSearchMode.NAME)
+        renderCoverMode()
     }
 
     fun bind(
@@ -135,15 +157,50 @@ class OnlineRadioPanelView @JvmOverloads constructor(
         nowPlaying.text = station.tags.take(3).joinToString("  •  ").ifBlank { "Conectando…" }
         updateFavorite(store.isFavorite(station.uuid))
         logoRequestUuid = station.uuid
+        currentLogo = null
         stationLogo.setImageDrawable(null)
+        stationBackground.setImageDrawable(null)
         logoPlaceholder.visibility = View.VISIBLE
         imageLoader.load(station.faviconUrl) { bitmap ->
             if (logoRequestUuid == station.uuid && bitmap != null) {
+                currentLogo = bitmap
                 stationLogo.setImageBitmap(bitmap)
                 logoPlaceholder.visibility = View.GONE
+                renderCoverMode()
             }
         }
     }
+
+    private fun renderCoverMode() {
+        val logo = currentLogo
+        val showFill = coverFillEnabled && logo != null
+        stationBackground.visibility = if (showFill) View.VISIBLE else View.GONE
+        backgroundScrim.visibility = if (showFill) View.VISIBLE else View.GONE
+        coverModeIndicator.text = if (showFill) "↙" else "↗"
+        if (showFill && logo != null) {
+            stationBackground.setImageBitmap(createSoftBackground(logo))
+            logoContainer.layoutParams = logoContainer.layoutParams.apply {
+                width = dp(72)
+                height = dp(72)
+            }
+        } else {
+            logoContainer.layoutParams = logoContainer.layoutParams.apply {
+                width = dp(132)
+                height = dp(132)
+            }
+        }
+        logoContainer.requestLayout()
+    }
+
+    /** Desfoque visual compatível com Android 7, sem RenderEffect (API 31). */
+    private fun createSoftBackground(source: Bitmap): Bitmap {
+        val smallWidth = (source.width / 14).coerceAtLeast(12)
+        val smallHeight = (source.height / 14).coerceAtLeast(12)
+        val reduced = Bitmap.createScaledBitmap(source, smallWidth, smallHeight, true)
+        return Bitmap.createScaledBitmap(reduced, dp(310), dp(420), true)
+    }
+
+    private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 
     private fun selectMode(mode: StationSearchMode) {
         searchMode = mode
