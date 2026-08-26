@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.content.Context
 import android.content.Intent
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import android.bluetooth.BluetoothAdapter
 import android.location.LocationManager
 import android.media.AudioManager
@@ -31,6 +33,12 @@ import com.chilenoapps.radioplus.online.RadioBrowserClient
 import com.chilenoapps.radioplus.obd.Elm327BluetoothClient
 import com.chilenoapps.radioplus.recognition.NowPlayingCoordinator
 import com.chilenoapps.radioplus.ui.NowPlayingPopupController
+import com.chilenoapps.radioplus.ui.AccentStyler
+import com.chilenoapps.radioplus.ui.RoutePopupController
+import com.chilenoapps.radioplus.maps.MapsActivity
+import com.chilenoapps.radioplus.maps.RouteNotificationListenerService
+import com.chilenoapps.radioplus.video.VideoActivity
+import com.chilenoapps.radioplus.phone.PhoneActivity
 import com.chilenoapps.radioplus.vip.VipAccess
 import com.chilenoapps.radioplus.vip.VipAccessManager
 import com.chilenoapps.radioplus.settings.AppSettingsStore
@@ -56,6 +64,13 @@ class MainActivity : AppCompatActivity() {
     private val vipAccessManager = VipAccessManager()
     private lateinit var settings: AppSettingsStore
     private lateinit var audioManager: AudioManager
+    private lateinit var routePopup: RoutePopupController
+    private var routeReceiverRegistered = false
+    private val routeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            routePopup.show(binding.root, intent?.getStringExtra(RouteNotificationListenerService.EXTRA_TITLE).orEmpty(), intent?.getStringExtra(RouteNotificationListenerService.EXTRA_TEXT).orEmpty())
+        }
+    }
     private val uiHandler = Handler(Looper.getMainLooper())
     private var currentSection = AppSection.RADIO
     private val clockTask = object : Runnable {
@@ -80,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         settings = AppSettingsStore(this)
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        routePopup = RoutePopupController(this)
         applySystemBarInsets()
         nowPlayingPopup = NowPlayingPopupController(this)
         nowPlayingCoordinator = NowPlayingCoordinator { info -> nowPlayingPopup.show(binding.root, info) }
@@ -132,6 +148,21 @@ class MainActivity : AppCompatActivity() {
         binding.nightToggle.text = if (nightMode) "NOTURNO ATIVO" else "☾  NOTURNO"
         renderPin()
         scheduleSidePanelCollapse()
+        AccentStyler.apply(binding.root)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!routeReceiverRegistered) {
+            ContextCompat.registerReceiver(this, routeReceiver, IntentFilter(RouteNotificationListenerService.ACTION_ROUTE_UPDATE), ContextCompat.RECEIVER_NOT_EXPORTED)
+            routeReceiverRegistered = true
+        }
+    }
+
+    override fun onStop() {
+        if (routeReceiverRegistered) { unregisterReceiver(routeReceiver); routeReceiverRegistered = false }
+        routePopup.dismiss()
+        super.onStop()
     }
 
     private fun configureHomeControls() {
@@ -239,6 +270,15 @@ class MainActivity : AppCompatActivity() {
             view.text = "${section.symbol}  ${section.title}"
             view.setOnClickListener { selectSection(section) }
         }
+        binding.navMaps.visibility = View.VISIBLE
+        binding.navMaps.text = "◆  MAPAS"
+        binding.navMaps.setOnClickListener { startActivity(Intent(this, MapsActivity::class.java)) }
+        binding.navVideo.visibility = View.VISIBLE
+        binding.navVideo.text = "▶  VÍDEO"
+        binding.navVideo.setOnClickListener { startActivity(Intent(this, VideoActivity::class.java)) }
+        binding.navPhone.visibility = View.VISIBLE
+        binding.navPhone.text = "☎  TELEFONE"
+        binding.navPhone.setOnClickListener { startActivity(Intent(this, PhoneActivity::class.java)) }
     }
 
     private fun selectSection(section: AppSection) {
@@ -272,7 +312,7 @@ class MainActivity : AppCompatActivity() {
             binding.navOnline to AppSection.ONLINE,
             binding.navObd to AppSection.OBD
         ).forEach { (view, value) ->
-            view.setBackgroundResource(if (value == section) R.drawable.bg_button_selected else R.drawable.bg_button)
+            AccentStyler.styleButton(view, value == section)
         }
     }
 
@@ -324,6 +364,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         uiHandler.removeCallbacksAndMessages(null)
         nowPlayingPopup.dismiss()
+        routePopup.dismiss()
         binding.musicPanel.release()
         musicPlayback.release()
         binding.onlineRadioPanel.release()
