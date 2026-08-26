@@ -56,7 +56,7 @@ class AlbumArtRepository(private val context: Context) {
     private fun downloadCover(track: MusicTrack): Bitmap? {
         if (track.album.isBlank() || track.artist == "Artista desconhecido") return null
         val releaseId = findReleaseId(track) ?: return null
-        return requestBytes("https://coverartarchive.org/release/$releaseId/front-500")
+        return requestBytes("https://coverartarchive.org/release/$releaseId/front-1200")
             ?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
     }
 
