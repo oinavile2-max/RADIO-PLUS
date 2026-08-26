@@ -27,7 +27,8 @@ android {
             buildConfigField("boolean", "ADMIN_MODE", "true")
         }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             buildConfigField("boolean", "ADMIN_MODE", "false")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
