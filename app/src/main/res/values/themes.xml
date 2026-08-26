@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.RadioPlus" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:navigationBarColor">@color/rp_black</item>
+        <item name="android:statusBarColor">@color/rp_black</item>
+        <item name="colorPrimary">@color/rp_blue</item>
+        <item name="colorSurface">@color/rp_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="PresetButton" parent="Widget.Material3.Button">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginHorizontal">3dp</item>
+        <item name="android:background">@drawable/bg_button</item>
+        <item name="android:textColor">@color/rp_text</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="NavButton" parent="Widget.Material3.Button">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginHorizontal">4dp</item>
+        <item name="android:background">@drawable/bg_button</item>
+        <item name="android:textColor">@color/rp_text</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>
