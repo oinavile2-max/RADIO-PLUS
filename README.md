@@ -2,7 +2,7 @@
 
 Aplicativo multimídia premium para centrais automotivas Android genéricas, com o **rádio físico FM/AM como função principal**.
 
-> **Status atual:** planejamento. O desenvolvimento e a compilação ainda não foram autorizados.
+> **Status atual:** desenvolvimento inicial autorizado. A compilação continua aguardando autorização explícita.
 
 ## Visão do produto
 
@@ -43,4 +43,4 @@ Haverá uma versão gratuita funcional e opções RADIO+ VIP. Funções essencia
 
 ## Situação do repositório
 
-Nenhum código funcional foi criado e nenhuma build foi compilada. Este repositório contém somente documentação de planejamento até a aprovação explícita do proprietário.
+A primeira base Android e a interface inicial do rádio estão em desenvolvimento. Nenhuma build foi compilada; APK/AAB continuam bloqueados até autorização explícita do proprietário.
