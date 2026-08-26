@@ -21,6 +21,7 @@
         android:icon="@drawable/ic_radio_plus"
         android:label="RADIO+"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.RadioPlus">
 
         <activity
