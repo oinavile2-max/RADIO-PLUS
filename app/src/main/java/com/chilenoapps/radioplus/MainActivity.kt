@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -41,7 +42,8 @@ class MainActivity : AppCompatActivity() {
     private val obdClient by lazy { Elm327BluetoothClient(this) }
     private val musicRepository by lazy { LocalMusicRepository(this) }
     private val vipAccessManager = VipAccessManager()
-    private val requestMusicPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+    private val requestMusicPermission: ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) loadMusicLibrary()
         else binding.musicPanel.showPermissionRequired { askForMusicPermission() }
     }
@@ -154,7 +156,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun askForMusicPermission() = requestMusicPermission.launch(musicPermission())
+    private fun askForMusicPermission() {
+        requestMusicPermission.launch(musicPermission())
+    }
 
     private fun musicPermission(): String = if (Build.VERSION.SDK_INT >= 33) {
         Manifest.permission.READ_MEDIA_AUDIO
