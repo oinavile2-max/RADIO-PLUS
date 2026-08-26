@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_now_playing_popup" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="18dp" android:paddingVertical="10dp">
+    <TextView android:layout_width="54dp" android:layout_height="54dp" android:background="@drawable/bg_knob" android:gravity="center" android:text="♫" android:textColor="@color/rp_glow" android:textSize="24sp" />
+    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginStart="14dp" android:layout_weight="1" android:gravity="center_vertical" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TOCANDO AGORA" android:textColor="@color/rp_glow" android:textSize="10sp" android:textStyle="bold" />
+        <TextView android:id="@+id/trackTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:textColor="@color/rp_text" android:textSize="18sp" android:textStyle="bold" />
+        <TextView android:id="@+id/trackArtist" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:textColor="@color/rp_text_muted" android:textSize="13sp" />
+    </LinearLayout>
+    <TextView android:id="@+id/source" android:layout_width="150dp" android:layout_height="match_parent" android:gravity="center" android:textColor="@color/rp_text_muted" android:textSize="10sp" />
+</LinearLayout>
