@@ -9,10 +9,20 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.Toast
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.TextView
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.chilenoapps.radioplus.databinding.ViewObdPanelBinding
+import com.chilenoapps.radioplus.R
+import com.chilenoapps.radioplus.settings.AppearanceStore
+import com.chilenoapps.radioplus.ui.AccentStyler
 
 class ObdPanelView @JvmOverloads constructor(
     context: Context,
@@ -22,6 +32,11 @@ class ObdPanelView @JvmOverloads constructor(
     private var client: Elm327BluetoothClient? = null
     private var selectedDevice: ObdDevice? = null
     private var adminMode = false
+    private var latestData = ObdLiveData()
+    private val preferences = context.getSharedPreferences("obd_monitor", Context.MODE_PRIVATE)
+    private val selectedParameters = preferences.getStringSet("selected", setOf("rpm", "speed", "coolant", "voltage")).orEmpty().toMutableSet()
+    private var monitorPopup: PopupWindow? = null
+    private var monitorList: LinearLayout? = null
 
     fun bind(value: Elm327BluetoothClient, isAdmin: Boolean) {
         client = value
@@ -36,6 +51,15 @@ class ObdPanelView @JvmOverloads constructor(
         binding.disconnect.setOnClickListener { client?.disconnect() }
         binding.readCodes.setOnClickListener { client?.readTroubleCodes() }
         binding.clearCodes.setOnClickListener { confirmClearCodes() }
+        binding.showMonitor.setOnClickListener { toggleMonitorPopup() }
+        mapOf(
+            binding.rpm to "rpm", binding.speed to "speed", binding.coolant to "coolant",
+            binding.intake to "intake", binding.load to "load", binding.throttle to "throttle", binding.voltage to "voltage"
+        ).forEach { (valueView, key) ->
+            (valueView.parent as? View)?.setOnClickListener { toggleParameter(key) }
+            (valueView.parent as? View)?.isClickable = true
+        }
+        AccentStyler.styleButton(binding.showMonitor)
     }
 
     private fun requestPermissionThenChoose() {
@@ -111,6 +135,10 @@ class ObdPanelView @JvmOverloads constructor(
     }
 
     override fun onLiveData(data: ObdLiveData) {
+        latestData = data
+        context.getSharedPreferences("obd_live", Context.MODE_PRIVATE).edit()
+            .putInt("speed_kmh", data.speedKmh ?: -1)
+            .putLong("updated_at", System.currentTimeMillis()).apply()
         binding.rpm.text = data.rpm?.let { "%04d".format(it) } ?: "—"
         binding.speed.text = data.speedKmh?.toString() ?: "—"
         binding.coolant.text = data.coolantCelsius?.let { "$it °C" } ?: "—"
@@ -118,6 +146,7 @@ class ObdPanelView @JvmOverloads constructor(
         binding.load.text = data.engineLoadPercent?.let { "$it%" } ?: "—"
         binding.throttle.text = data.throttlePercent?.let { "$it%" } ?: "—"
         binding.voltage.text = data.voltage?.let { "%.1f V".format(it) } ?: "—"
+        renderMonitorRows()
     }
 
     override fun onTroubleCodes(codes: List<String>) {
@@ -125,15 +154,89 @@ class ObdPanelView @JvmOverloads constructor(
     }
 
     private fun setConnected(connected: Boolean) {
-        binding.connect.isEnabled = !connected && selectedDevice != null
-        binding.disconnect.isEnabled = connected
-        binding.readCodes.isEnabled = connected
-        binding.clearCodes.isEnabled = connected
+        binding.connect.alpha = if (connected) 0.55f else 1f
+        binding.disconnect.alpha = if (connected) 1f else 0.72f
+        binding.readCodes.alpha = if (connected) 1f else 0.72f
+        binding.clearCodes.alpha = if (connected) 1f else 0.72f
     }
+
+    private fun toggleParameter(key: String) {
+        if (!selectedParameters.add(key)) selectedParameters.remove(key)
+        preferences.edit().putStringSet("selected", selectedParameters.toSet()).apply()
+        toast(if (selectedParameters.contains(key)) "Parâmetro adicionado ao monitor" else "Parâmetro removido do monitor")
+        renderMonitorRows()
+    }
+
+    private fun toggleMonitorPopup() {
+        if (monitorPopup?.isShowing == true) { monitorPopup?.dismiss(); return }
+        val accent = AppearanceStore(context).accentColor
+        val content = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), dp(10), dp(12), dp(12))
+            setBackgroundResource(R.drawable.bg_panel)
+        }
+        val header = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        header.addView(TextView(context).apply { text = "MONITOR AO VIVO"; textSize = 15f; setTextColor(accent); setTypeface(typeface, 1) }, LinearLayout.LayoutParams(0, dp(46), 1f))
+        val collapse = Button(context).apply { text = "⌃"; contentDescription = "Recolher monitor" }
+        val close = Button(context).apply { text = "×"; contentDescription = "Fechar monitor"; setOnClickListener { monitorPopup?.dismiss() } }
+        header.addView(collapse, LinearLayout.LayoutParams(dp(46), dp(42)))
+        header.addView(close, LinearLayout.LayoutParams(dp(46), dp(42)))
+        content.addView(header)
+        monitorList = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
+        content.addView(monitorList, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+        val pin = Button(context).apply {
+            text = if (preferences.getBoolean("pinned", true)) "⌖  POPUP FIXADO" else "⌖  FIXAR POPUP"
+            setOnClickListener {
+                val value = !preferences.getBoolean("pinned", true)
+                preferences.edit().putBoolean("pinned", value).apply()
+                text = if (value) "⌖  POPUP FIXADO" else "⌖  FIXAR POPUP"
+                monitorPopup?.isOutsideTouchable = !value
+            }
+        }
+        content.addView(pin, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)))
+        collapse.setOnClickListener {
+            val visible = monitorList?.visibility != View.GONE
+            monitorList?.visibility = if (visible) View.GONE else View.VISIBLE
+            pin.visibility = if (visible) View.GONE else View.VISIBLE
+            collapse.text = if (visible) "⌄" else "⌃"
+            monitorPopup?.height = if (visible) dp(74) else dp(460)
+            monitorPopup?.update()
+        }
+        monitorPopup = PopupWindow(content, dp(270), dp(460), false).apply {
+            isOutsideTouchable = !preferences.getBoolean("pinned", true)
+            elevation = dp(10).toFloat()
+            showAtLocation(binding.root, Gravity.END or Gravity.CENTER_VERTICAL, dp(18), 0)
+        }
+        AccentStyler.apply(content)
+        renderMonitorRows()
+    }
+
+    private fun renderMonitorRows() {
+        val container = monitorList ?: return
+        container.removeAllViews()
+        val rows = linkedMapOf(
+            "rpm" to ("◴  RPM" to latestData.rpm?.let { "$it rpm" }),
+            "speed" to ("◉  VELOCIDADE" to latestData.speedKmh?.let { "$it km/h" }),
+            "coolant" to ("♨  MOTOR" to latestData.coolantCelsius?.let { "$it °C" }),
+            "intake" to ("≋  ADMISSÃO" to latestData.intakeCelsius?.let { "$it °C" }),
+            "load" to ("▣  CARGA" to latestData.engineLoadPercent?.let { "$it%" }),
+            "throttle" to ("◩  ACELERADOR" to latestData.throttlePercent?.let { "$it%" }),
+            "voltage" to ("▤  TENSÃO" to latestData.voltage?.let { "%.1f V".format(it) })
+        )
+        rows.filterKeys(selectedParameters::contains).forEach { (_, pair) ->
+            container.addView(TextView(context).apply {
+                text = "${pair.first}\n${pair.second ?: "Não suportado / sem leitura"}"
+                textSize = 14f; setTextColor(ContextCompat.getColor(context, R.color.rp_text)); setPadding(dp(12), dp(9), dp(12), dp(9)); setBackgroundResource(R.drawable.bg_track_row)
+            }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(5) })
+        }
+    }
+
+    private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 
     private fun toast(message: String) = Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 
     fun release() {
+        monitorPopup?.dismiss()
         client?.setListener(null)
         client?.release()
         client = null
