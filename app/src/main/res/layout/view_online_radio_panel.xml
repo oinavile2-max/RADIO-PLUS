@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_panel" android:orientation="horizontal" android:padding="12dp">
-    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.3" android:orientation="vertical">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/onlineContentRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_panel" android:orientation="horizontal" android:padding="12dp">
+    <LinearLayout android:id="@+id/onlineListPanel" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.3" android:orientation="vertical">
         <LinearLayout android:layout_width="match_parent" android:layout_height="46dp">
             <EditText android:id="@+id/search" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_button" android:hint="Nome, gênero, país ou estado" android:paddingHorizontal="15dp" android:singleLine="true" android:textColor="@color/rp_text" android:textColorHint="@color/rp_text_muted" android:textSize="14sp" />
             <Button android:id="@+id/searchButton" android:layout_width="105dp" android:layout_height="match_parent" android:layout_marginStart="7dp" android:background="@drawable/bg_button_selected" android:text="BUSCAR" android:textColor="@color/rp_text" android:textStyle="bold" />
@@ -35,5 +35,6 @@
             <Button android:id="@+id/playPause" android:layout_width="72dp" android:layout_height="72dp" android:background="@drawable/bg_knob" android:text="▶" android:textColor="@color/rp_text" android:textSize="25sp" />
             <Button android:id="@+id/favorite" android:layout_width="180dp" android:layout_height="44dp" android:layout_marginTop="8dp" android:background="@drawable/bg_button" android:text="☆ FAVORITAR" android:textColor="@color/rp_text" android:textSize="12sp" />
         </LinearLayout>
+        <Button android:id="@+id/swapOnlineSide" android:layout_width="48dp" android:layout_height="48dp" android:layout_gravity="top|end" android:layout_margin="8dp" android:background="@drawable/bg_frosted_button" android:contentDescription="Alterar lado do player" android:text="⇆" android:textColor="@color/rp_text" android:textSize="20sp" />
     </FrameLayout>
 </LinearLayout>
