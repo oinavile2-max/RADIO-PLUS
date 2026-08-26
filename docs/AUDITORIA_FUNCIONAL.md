@@ -4,6 +4,15 @@ Atualização: 26/08/2026
 
 Este documento separa funções implementadas no código, funções que precisam de teste no equipamento e funções ainda não implementadas. Nenhum valor de hardware deve ser simulado.
 
+## Sistema visual 3D unificado
+
+- Aplicado por um estilizador central em Rádio, Música, Online, OBD, Launcher, Vídeo, Mapas, Telefone, Configurações e Diagnóstico NWD.
+- Botões com relevo grafite, brilho superior, sombra inferior, contorno configurável, estado pressionado e seleção em ciano.
+- Controles principais de reprodução circulares com aro 3D dedicado.
+- Botões desabilitados com opacidade reduzida para não aparentarem função disponível.
+- Player de Música responsivo em aproximadamente 38% da área e biblioteca em 62%, preservando a troca de lado.
+- Navegação e filtros com largura útil ampliada para evitar quebras em `BIBLIOTECA` e `TELEFONE`.
+
 ## Implementado no código — requer validação no Android Studio e no equipamento
 
 - Launcher HOME opcional, gaveta de aplicativos, modo essencial e atalhos internos.
