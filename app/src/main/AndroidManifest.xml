@@ -36,6 +36,11 @@
         android:theme="@style/Theme.RadioPlus">
 
         <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape" />
+
+        <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|uiMode"
             android:exported="true"
