@@ -17,11 +17,20 @@
     <uses-feature android:name="android.hardware.type.automotive" android:required="false" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="false"
+        android:xlargeScreens="true" />
+
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:icon="@drawable/ic_radio_plus"
         android:label="RADIO+"
+        android:resizeableActivity="true"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.RadioPlus">
@@ -30,7 +39,7 @@
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|uiMode"
             android:exported="true"
-            android:screenOrientation="landscape">
+            android:screenOrientation="sensorLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
