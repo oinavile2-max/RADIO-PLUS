@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="rp_black">#080B0F</color>
+    <color name="rp_surface">#111820</color>
+    <color name="rp_surface_alt">#18222D</color>
+    <color name="rp_blue">#19A7FF</color>
+    <color name="rp_blue_dim">#0B5F91</color>
+    <color name="rp_text">#F2F6FA</color>
+    <color name="rp_text_muted">#9AABB8</color>
+    <color name="rp_night_amber">#FFB547</color>
+    <color name="rp_red">#FF5A62</color>
+</resources>
