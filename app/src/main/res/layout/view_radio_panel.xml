@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/bg_panel" android:orientation="vertical" android:padding="14dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="44dp" android:gravity="center">
+        <Button android:id="@+id/bandFm" android:layout_width="96dp" android:layout_height="match_parent" android:background="@drawable/bg_button_selected" android:text="FM" android:textColor="@color/rp_text" android:textSize="18sp" android:textStyle="bold" />
+        <Button android:id="@+id/bandAm" android:layout_width="96dp" android:layout_height="match_parent" android:layout_marginStart="8dp" android:background="@drawable/bg_button" android:text="AM" android:textColor="@color/rp_text" android:textSize="18sp" android:textStyle="bold" />
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="bottom">
+            <TextView android:id="@+id/frequency" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="98.5" android:textColor="@color/rp_text" android:textSize="68sp" android:textStyle="bold" />
+            <TextView android:id="@+id/unit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:layout_marginStart="10dp" android:text="MHz" android:textColor="@color/rp_text" android:textSize="24sp" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/radioDetails" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical">
+            <TextView android:id="@+id/stationName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RÁDIO FM" android:textColor="@color/rp_text" android:textSize="23sp" android:textStyle="bold" />
+            <TextView android:id="@+id/stereo" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="18dp" android:text="STEREO" android:textColor="@color/rp_blue" android:textSize="15sp" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="64dp" android:layout_marginTop="10dp" android:gravity="center">
+            <Button android:id="@+id/seekDown" android:layout_width="96dp" android:layout_height="58dp" android:background="@drawable/bg_button" android:text="◀◀" android:textColor="@color/rp_text" android:textSize="22sp" />
+            <Button android:id="@+id/playPause" android:layout_width="76dp" android:layout_height="64dp" android:layout_marginHorizontal="20dp" android:background="@drawable/bg_button_selected" android:text="Ⅱ" android:textColor="@color/rp_text" android:textSize="26sp" />
+            <Button android:id="@+id/seekUp" android:layout_width="96dp" android:layout_height="58dp" android:background="@drawable/bg_button" android:text="▶▶" android:textColor="@color/rp_text" android:textSize="22sp" />
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/presets" android:layout_width="match_parent" android:layout_height="52dp" android:orientation="horizontal">
+        <Button android:id="@+id/preset1" style="@style/PresetButton" />
+        <Button android:id="@+id/preset2" style="@style/PresetButton" />
+        <Button android:id="@+id/preset3" style="@style/PresetButton" />
+        <Button android:id="@+id/preset4" style="@style/PresetButton" />
+        <Button android:id="@+id/preset5" style="@style/PresetButton" />
+        <Button android:id="@+id/preset6" style="@style/PresetButton" />
+    </LinearLayout>
+    <TextView android:id="@+id/hardwareStatus" android:layout_width="match_parent" android:layout_height="24dp" android:gravity="center" android:textColor="@color/rp_text_muted" android:textSize="11sp" />
+</LinearLayout>
