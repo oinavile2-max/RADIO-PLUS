@@ -12,7 +12,9 @@ Aplicativo multimídia automotivo para centrais Android, com rádio físico como
 
 A variante `debug` é a versão administrativa: usa o pacote `com.chilenoapps.radioplus.admin`, mostra o selo **ADMIN • VIP ATIVO** e libera o estado VIP exclusivamente para homologação. A versão `release` não contém essa autorização.
 
-O projeto suporta Android 7 (API 24) ou superior e foi desenhado para telas horizontais de centrais automotivas.
+O projeto suporta Android 7 (API 24) ou superior e foi desenhado para centrais automotivas e tablets em telas horizontais. A interface aceita redimensionamento, diferentes densidades e as duas posições de rotação horizontal.
+
+Faixa principal de uso: telas de aproximadamente 7 a 13 polegadas. Os controles essenciais permanecem grandes para operação veicular e os módulos usam dimensões em `dp`/`sp`, evitando dependência de uma resolução fixa.
 
 ## Estado de hardware
 
